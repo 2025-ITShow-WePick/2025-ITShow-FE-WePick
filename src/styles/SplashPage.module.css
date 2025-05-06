@@ -1,0 +1,90 @@
+@font-face {
+  font-family: "Helvetica";
+  src: url("../assets/fonts/HelveticaNeueLight.otf") format("truetype");
+}
+
+body {
+  width: 100%;
+  height: 100%;
+}
+
+.wepickLogoSubtitle {
+  display: flex;
+  margin-top: 60px;
+  margin-left: 60px;
+}
+
+.wepickLogo {
+  width: 71px;
+  height: 78px;
+  aspect-ratio: 71/78;
+}
+
+.wepickSubtitle {
+  margin: 0 auto;
+  text-align: center;
+  color: #000;
+  margin-top: 20px;
+  font-family: "Helvetica";
+  font-size: 53px;
+  font-weight: 700;
+}
+
+.imageStack {
+  position: relative;
+  width: 1200px; /* 넉넉한 가로 폭 */
+  height: 600px;
+  margin: 40px auto; /* 수평 중앙 정렬 */
+  display: flex;
+  justify-content: center;
+  align-items: center; /* 수직 중앙 정렬 */
+}
+
+.stackImg {
+  position: absolute;
+  width: 150px;
+  height: auto;
+  border-radius: 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.8s ease, opacity 0.5s;
+  cursor: pointer;
+}
+
+.stacked {
+  transform: translate(
+      calc(var(--i) * 5px - 20px),
+      calc(var(--i) * -4px + 16px)
+    )
+    rotate(calc(var(--rotation)));
+  z-index: calc(10 - var(--i));
+  opacity: 1;
+}
+
+/* 펼쳐졌을 때 좌우로도 확실하게 퍼지도록 translateX 조정 */
+.spread0 {
+  transform: translate(-300px, -140px) rotate(-5deg);
+}
+.spread1 {
+  transform: translate(-100px, -160px) rotate(3deg);
+}
+.spread2 {
+  transform: translate(130px, -140px) rotate(-7deg);
+}
+.spread3 {
+  transform: translate(-230px, 0px) rotate(6deg);
+}
+.spread4 {
+  transform: translate(0px, 0px) rotate(-2deg);
+} /* 중심 */
+.spread5 {
+  transform: translate(230px, 10px) rotate(4deg);
+}
+.spread6 {
+  transform: translate(-180px, 150px) rotate(-4deg);
+}
+.spread7 {
+  transform: translate(20px, 170px) rotate(5deg);
+}
+.spread8 {
+  transform: translate(200px, 170px) rotate(-6deg);
+}
