@@ -26,27 +26,27 @@ export default function SplashPage() {
   const [spread, setSpread] = useState(false);
 
   const handleClick = () => {
-    setSpread(!spread);
+    setSpread((prev) => !prev);
   };
 
   return (
     <>
+      {<div className={`${styles.overlay} ${spread ? styles.show : ""}`} />}
       <div className={styles.wepickLogoSubtitle}>
         <img src={wepickLogo} className={styles.wepickLogo} />
         <p className={styles.wepickSubtitle}>Capturing Moments And Memories</p>
       </div>
-
       <div className={styles.imageStack} onClick={handleClick}>
         {[...splashImg].map((src, i) => {
-          const offsetX = (Math.random() - 0.5) * 40; // -20px ~ 20px
-          const offsetY = (Math.random() - 0.5) * 40; // -20px ~ 20px
+          const offsetX = (Math.random() - 0.5) * 40;
+          const offsetY = (Math.random() - 0.5) * 40;
 
           return (
             <img
               key={i}
               src={src}
               alt={`img${i}`}
-              className={`${styles.stackImg} ${
+              className={`${styles.stackImg} ${styles[`img${i}`]} ${
                 spread ? styles[`spread${i}`] : styles.stacked
               }`}
               style={{
@@ -58,6 +58,23 @@ export default function SplashPage() {
             />
           );
         })}
+      </div>
+      <div className={styles.btnPlusBox}>
+        <button
+          className={`${styles.btnPlus} ${spread ? styles.rotated : ""}`}
+          onClick={handleClick}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="62"
+            height="62"
+            viewBox="0 0 89 89"
+            fill="none"
+          >
+            <path d="M44.126 0V88.5" stroke="black" strokeWidth="6" />
+            <path d="M0 44.126L88.5 44.126" stroke="black" strokeWidth="6" />
+          </svg>
+        </button>
       </div>
     </>
   );

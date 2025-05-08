@@ -6,45 +6,63 @@
 body {
   width: 100%;
   height: 100%;
+  overflow: hidden;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.6);
+  z-index: 15;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.overlay.show {
+  opacity: 1;
+  visibility: visible;
 }
 
 .wepickLogoSubtitle {
   display: flex;
   margin-top: 60px;
   margin-left: 60px;
+  cursor: pointer;
 }
 
 .wepickLogo {
-  width: 71px;
-  height: 78px;
-  aspect-ratio: 71/78;
+  cursor: pointer;
+  width: 54px;
+  height: 61px;
+  aspect-ratio: 61/68;
 }
 
 .wepickSubtitle {
+  transform: translateX(-70px);
   margin: 0 auto;
-  text-align: center;
   color: #000;
   margin-top: 20px;
   font-family: "Helvetica";
-  font-size: 53px;
+  font-size: 40px;
   font-weight: 700;
 }
 
 .imageStack {
   position: relative;
-  width: 1200px; /* 넉넉한 가로 폭 */
+  width: 1000px;
   height: 600px;
-  margin: 40px auto; /* 수평 중앙 정렬 */
+  margin: 5px auto;
   display: flex;
   justify-content: center;
-  align-items: center; /* 수직 중앙 정렬 */
+  align-items: center;
 }
 
 .stackImg {
   position: absolute;
-  width: 150px;
-  height: auto;
-  border-radius: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   transition: transform 0.8s ease, opacity 0.5s;
   cursor: pointer;
@@ -53,69 +71,110 @@ body {
 .stacked {
   z-index: 10;
   opacity: 1;
-  /* 기존 transform 제거됨 */
 }
-
 
 .img0 {
-  width: 199px;
-height: 148px;
+  width: 159px;
+  height: 108px;
 }
 .img1 {
-  width: 199px;
-height: 148px;
+  width: 159px;
+  height: 108px;
 }
 .img2 {
-  width: 188px;
-height: 200px;
+  width: 158px;
+  height: 160px;
 }
 .img3 {
-  width: 199px;
-height: 147px;
+  width: 159px;
+  height: 107px;
 }
 .img4 {
-  width: 248px;
-height: 221px;
+  width: 188px;
+  height: 161px;
 }
 .img5 {
-  width: 249px;
-height: 221px;
+  width: 189px;
+  height: 161px;
 }
 .img6 {
-  width: 199px;
-height: 233px;
+  width: 159px;
+  height: 193px;
 }
 .img7 {
-  width: 308px;
-height: 213px;
+  width: 248px;
+  height: 153px;
 }
 
-
-/* 펼쳐졌을 때 좌우로도 확실하게 퍼지도록 translateX 조정 */
 .spread0 {
-  transform: translate(-300px, -140px) rotate(-5deg);
+  transform: translate(-264px, -170px);
 }
 .spread1 {
-  transform: translate(-100px, -160px) rotate(3deg);
+  transform: translate(-55px, -101px);
 }
 .spread2 {
-  transform: translate(130px, -140px) rotate(-7deg);
+  transform: translate(124px, -150px);
 }
 .spread3 {
-  transform: translate(-230px, 0px) rotate(6deg);
+  transform: translate(-235px, -50px);
 }
 .spread4 {
-  transform: translate(0px, 0px) rotate(-2deg);
-} /* 중심 */
+  transform: translate(50px, 46px);
+}
 .spread5 {
-  transform: translate(230px, 10px) rotate(4deg);
+  transform: translate(-369px, 102px);
 }
 .spread6 {
-  transform: translate(-180px, 150px) rotate(-4deg);
+  transform: translate(-171px, 196px);
 }
 .spread7 {
-  transform: translate(20px, 170px) rotate(5deg);
+  transform: translate(293px, 150px);
 }
-.spread8 {
-  transform: translate(200px, 170px) rotate(-6deg);
+
+.btnPlusBox {
+  margin-left: 1295px;
+  margin-top: -80px;
+  z-index: 10;
+}
+
+.btnPlus {
+  width: 130px;
+  height: 130px;
+  border-radius: 65px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.5s ease;
+}
+
+/* 회전 애니메이션 */
+.rotated {
+  transform: rotate(-45deg);
+}
+
+.btnPlus {
+  width: 130px;
+  height: 130px;
+  border-radius: 65px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.06);
+  z-index: 20;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btnX {
+  font-size: 40px;
+  font-weight: bold;
+  color: black;
+}
+
+.btnPlusBox {
+  margin-left: 1295px;
+  margin-top: -80px;
+  position: relative;
+  z-index: 20;
 }
