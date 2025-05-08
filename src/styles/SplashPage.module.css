@@ -51,14 +51,45 @@ body {
 }
 
 .stacked {
-  transform: translate(
-      calc(var(--i) * 5px - 20px),
-      calc(var(--i) * -4px + 16px)
-    )
-    rotate(calc(var(--rotation)));
-  z-index: calc(10 - var(--i));
+  z-index: 10;
   opacity: 1;
+  /* 기존 transform 제거됨 */
 }
+
+
+.img0 {
+  width: 199px;
+height: 148px;
+}
+.img1 {
+  width: 199px;
+height: 148px;
+}
+.img2 {
+  width: 188px;
+height: 200px;
+}
+.img3 {
+  width: 199px;
+height: 147px;
+}
+.img4 {
+  width: 248px;
+height: 221px;
+}
+.img5 {
+  width: 249px;
+height: 221px;
+}
+.img6 {
+  width: 199px;
+height: 233px;
+}
+.img7 {
+  width: 308px;
+height: 213px;
+}
+
 
 /* 펼쳐졌을 때 좌우로도 확실하게 퍼지도록 translateX 조정 */
 .spread0 {

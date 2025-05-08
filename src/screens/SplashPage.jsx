@@ -35,21 +35,29 @@ export default function SplashPage() {
         <img src={wepickLogo} className={styles.wepickLogo} />
         <p className={styles.wepickSubtitle}>Capturing Moments And Memories</p>
       </div>
+
       <div className={styles.imageStack} onClick={handleClick}>
-        {splashImg.map((src, i) => (
-          <img
-            key={i}
-            src={src}
-            alt={`img${i}`}
-            className={`${styles.stackImg} ${
-              spread ? styles[`spread${i}`] : styles.stacked
-            }`}
-            style={{
-              "--i": i,
-              "--rotation": `${(Math.random() - 0.5) * 10}deg`,
-            }}
-          />
-        ))}
+        {[...splashImg].map((src, i) => {
+          const offsetX = (Math.random() - 0.5) * 40; // -20px ~ 20px
+          const offsetY = (Math.random() - 0.5) * 40; // -20px ~ 20px
+
+          return (
+            <img
+              key={i}
+              src={src}
+              alt={`img${i}`}
+              className={`${styles.stackImg} ${
+                spread ? styles[`spread${i}`] : styles.stacked
+              }`}
+              style={{
+                transform: spread
+                  ? undefined
+                  : `translate(${offsetX}px, ${offsetY}px)`,
+                zIndex: 10 - i,
+              }}
+            />
+          );
+        })}
       </div>
     </>
   );
