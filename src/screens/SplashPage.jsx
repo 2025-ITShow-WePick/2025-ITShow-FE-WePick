@@ -24,6 +24,7 @@ const splashImg = [
 
 export default function SplashPage() {
   const [spread, setSpread] = useState(false);
+  const [overlay, setOverlay] = useState(false); // 오버레이 표시 여부
 
   const handleClick = () => {
     setSpread((prev) => !prev);
@@ -31,7 +32,10 @@ export default function SplashPage() {
 
   return (
     <>
-      {<div className={`${styles.overlay} ${spread ? styles.show : ""}`} />}
+      {<div
+  className={`${styles.overlay} ${spread ? styles.show : ""}`}
+  onClick={handleClick}
+/>}
       <div className={styles.wepickLogoSubtitle}>
         <img src={wepickLogo} className={styles.wepickLogo} />
         <p className={styles.wepickSubtitle}>Capturing Moments And Memories</p>
@@ -48,11 +52,10 @@ export default function SplashPage() {
               alt={`img${i}`}
               className={`${styles.stackImg} ${styles[`img${i}`]} ${
                 spread ? styles[`spread${i}`] : styles.stacked
-              }`}
+              } ${!spread && i !== 0 ? styles.wiggle : ""}`}
               style={{
-                transform: spread
-                  ? undefined
-                  : `translate(${offsetX}px, ${offsetY}px)`,
+                "--offset-x": `${offsetX}px`,
+                "--offset-y": `${offsetY}px`,
                 zIndex: 10 - i,
               }}
             />
@@ -71,8 +74,8 @@ export default function SplashPage() {
             viewBox="0 0 89 89"
             fill="none"
           >
-            <path d="M44.126 0V88.5" stroke="black" strokeWidth="6" />
-            <path d="M0 44.126L88.5 44.126" stroke="black" strokeWidth="6" />
+            <path d="M44.126 0V88.5" stroke="black" strokeWidth="7" />
+            <path d="M0 44.126L88.5 44.126" stroke="black" strokeWidth="7" />
           </svg>
         </button>
       </div>

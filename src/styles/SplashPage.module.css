@@ -64,8 +64,9 @@ body {
 .stackImg {
   position: absolute;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  transition: transform 0.8s ease, opacity 0.5s;
   cursor: pointer;
+  transition: transform 0.8s ease-in-out, opacity 0.5s;
+  transform: translate(var(--offset-x, 0), var(--offset-y, 0));
 }
 
 .stacked {
@@ -147,7 +148,6 @@ body {
   transition: transform 0.5s ease;
 }
 
-/* 회전 애니메이션 */
 .rotated {
   transform: rotate(-45deg);
 }
