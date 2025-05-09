@@ -22,45 +22,84 @@ const splashImg = [
   splashImg8,
 ];
 
+// 펼침 좌표 (spread 상태에서 각 이미지가 이동할 위치)
+const spreadTransforms = [
+  { x: -264, y: -170 },
+  { x: -55,  y: -101 },
+  { x: 124,  y: -150 },
+  { x: -235, y: -50 },
+  { x: 50,   y: 46 },
+  { x: -369, y: 102 },
+  { x: -171, y: 196 },
+  { x: 293,  y: 150 },
+];
+
 export default function SplashPage() {
   const [spread, setSpread] = useState(false);
-  const [overlay, setOverlay] = useState(false); // 오버레이 표시 여부
 
+  // 랜덤 offset은 spread 상태가 바뀔 때마다 새로 생성
+  const [randomOffsets, setRandomOffsets] = useState(
+    splashImg.map(() => ({
+      x: (Math.random() - 0.5) * 40,
+      y: (Math.random() - 0.5) * 40,
+    }))
+  );
+
+  // spread 상태가 false로 돌아갈 때 랜덤 offset 새로 생성
   const handleClick = () => {
-    setSpread((prev) => !prev);
+    if (spread) {
+      setSpread(false);
+      setRandomOffsets(
+        splashImg.map(() => ({
+          x: (Math.random() - 0.5) * 40,
+          y: (Math.random() - 0.5) * 40,
+        }))
+      );
+    } else {
+      setSpread(true);
+    }
   };
 
   return (
     <>
-      {<div
-  className={`${styles.overlay} ${spread ? styles.show : ""}`}
-  onClick={handleClick}
-/>}
+      <div
+        className={`${styles.overlay} ${spread ? styles.show : ""}`}
+        onClick={handleClick}
+      />
       <div className={styles.wepickLogoSubtitle}>
-        <img src={wepickLogo} className={styles.wepickLogo} />
+        <img src={wepickLogo} className={styles.wepickLogo} alt="logo" />
         <p className={styles.wepickSubtitle}>Capturing Moments And Memories</p>
       </div>
       <div className={styles.imageStack} onClick={handleClick}>
-        {[...splashImg].map((src, i) => {
-          const offsetX = (Math.random() - 0.5) * 40;
-          const offsetY = (Math.random() - 0.5) * 40;
+      {[...splashImg].map((src, i) => (
+  <div
+    key={i}
+    className={styles.stackImgWrapper}
+    style={{
+      zIndex: 10 - i,
+      transform: spread
+        ? `translate(${spreadTransforms[i].x}px, ${spreadTransforms[i].y}px)`
+        : `translate(${randomOffsets[i].x}px, ${randomOffsets[i].y}px)`,
+      transition: "transform 0.8s ease-in-out, opacity 0.5s",
+    }}
+  >
+    <img
+      src={src}
+      alt={`img${i}`}
+      className={
+        styles.stackImg +
+        " " +
+        styles[`img${i}`] +
+        " " +
+        (!spread ? styles.wiggle : "")
+      }
+      style={{
+        animationDelay: `${i * 0.4}s`, // 각 사진마다 파도 타이밍 다르게!
+      }}
+    />
+  </div>
+))}
 
-          return (
-            <img
-              key={i}
-              src={src}
-              alt={`img${i}`}
-              className={`${styles.stackImg} ${styles[`img${i}`]} ${
-                spread ? styles[`spread${i}`] : styles.stacked
-              } ${!spread && i !== 0 ? styles.wiggle : ""}`}
-              style={{
-                "--offset-x": `${offsetX}px`,
-                "--offset-y": `${offsetY}px`,
-                zIndex: 10 - i,
-              }}
-            />
-          );
-        })}
       </div>
       <div className={styles.btnPlusBox}>
         <button
