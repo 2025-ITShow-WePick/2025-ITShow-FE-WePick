@@ -34,13 +34,6 @@ body {
   cursor: pointer;
 }
 
-.wepickLogo {
-  cursor: pointer;
-  width: 54px;
-  height: 61px;
-  aspect-ratio: 61/68;
-}
-
 .wepickSubtitle {
   transform: translateX(-70px);
   margin: 0 auto;
@@ -184,4 +177,9 @@ body {
   background-color: transparent;
   font-weight: 300;
   font-size: 80px;
+}
+
+.hidden {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
 }
