@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styles from "../styles/SplashPage.module.css";
+import Logo from "../components/Logo";
 
-import wepickLogo from "../assets/images/wepick_logo.png";
 import splashImg1 from "../assets/images/splashImg1.png";
 import splashImg2 from "../assets/images/splashImg2.png";
 import splashImg3 from "../assets/images/splashImg3.png";
@@ -68,8 +68,12 @@ export default function SplashPage() {
         onClick={handleClick}
       />
       <div className={styles.wepickLogoSubtitle}>
-        <img src={wepickLogo} className={styles.wepickLogo} alt="logo" />
-        <p className={styles.wepickSubtitle}>Capturing Moments And Memories</p>
+        <Logo />
+        <p
+          className={`${styles.wepickSubtitle} ${spread ? styles.hidden : ""}`}
+        >
+          Capturing Moments And Memories
+        </p>
       </div>
       <div className={styles.imageStack} onClick={handleClick}>
         {[...splashImg].map((src, i) => (
