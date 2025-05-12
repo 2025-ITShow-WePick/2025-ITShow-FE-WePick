@@ -29,9 +29,6 @@ body {
 
 .wepickLogoSubtitle {
   display: flex;
-  margin-top: 60px;
-  margin-left: 60px;
-  cursor: pointer;
 }
 
 .wepickSubtitle {
@@ -42,6 +39,8 @@ body {
   font-family: "Helvetica";
   font-size: 40px;
   font-weight: 700;
+  cursor: pointer;
+  margin-top: 60px;
 }
 
 .imageStack {
