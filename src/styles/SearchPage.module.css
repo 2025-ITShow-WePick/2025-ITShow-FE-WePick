@@ -1,1 +1,69 @@
- 
+.hashtagPlus {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 6px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 24px;
+  border: 2px solid #8b8b8b;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 10px;
+  position: relative;
+}
+
+.clicked {
+  border: 2px solid #000;
+}
+
+.hashtagPlus svg {
+  transition: transform 0.4s ease;
+  transform: rotate(45deg); /* 처음엔 + 모양 */
+}
+
+.clicked svg {
+  transform: rotate(0deg); /* 클릭하면 X 모양 */
+}
+
+.wepickHashtags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: -60px;
+  margin-left: 900px; /* 원래 위치로 복원 */
+  position: relative;
+}
+
+/* Hashtag 애니메이션 - 방향 수정됨 */
+.hashtag {
+  opacity: 0;
+  transform: translateX(20px); /* 오른쪽에서 시작 */
+  transition: all 0.5s ease;
+  pointer-events: none;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateX(0); /* 원래 위치로 이동 */
+  pointer-events: auto;
+}
+
+/* 각 해시태그마다 약간의 지연 효과를 주어 순차적으로 나타나게 함 */
+.hashtag:nth-child(1) {
+  transition-delay: 0.05s;
+}
+.hashtag:nth-child(2) {
+  transition-delay: 0.1s;
+}
+.hashtag:nth-child(3) {
+  transition-delay: 0.15s;
+}
+.hashtag:nth-child(4) {
+  transition-delay: 0.2s;
+}
+.hashtag:nth-child(5) {
+  transition-delay: 0.25s;
+}
+/* 필요한 만큼 추가 */

@@ -1,0 +1,22 @@
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard.ttf") format("truetype");
+}
+
+.hashtagBtn {
+  display: flex;
+  padding: 8px 20px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 43px;
+  border: 2px solid #8b8b8b;
+  background: #fff;
+  color: #8b8b8b;
+  font-size: 14px;
+}
+
+.clicked {
+  border: 2px solid #000;
+  color: #000;
+  font-weight: 700;
+}
