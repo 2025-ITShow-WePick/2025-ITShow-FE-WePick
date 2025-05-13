@@ -1,7 +1,7 @@
 .hashtagPlus {
   display: flex;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   padding: 6px;
   justify-content: center;
   align-items: center;
@@ -29,10 +29,13 @@
 
 .wepickHashtags {
   display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: auto;
   gap: 8px;
   flex-wrap: wrap;
   margin-top: -60px;
-  margin-left: 900px; /* 원래 위치로 복원 */
+  margin-right: 8.6vw;
   position: relative;
 }
 

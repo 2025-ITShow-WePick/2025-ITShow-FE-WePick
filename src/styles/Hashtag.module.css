@@ -5,7 +5,9 @@
 
 .hashtagBtn {
   display: flex;
-  padding: 8px 20px;
+  width: auto;
+  height: 40px;
+  padding: 0 26px;
   justify-content: center;
   align-items: center;
   border-radius: 43px;
