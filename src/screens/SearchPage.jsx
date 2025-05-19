@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "../styles/SearchPage.module.css";
 import Logo from "../components/Logo";
 import Hashtag from "../components/Hashtag";
+import SearchPhoto from "../components/SearchPhoto";
 
 export default function SearchPage() {
   const whoList = ["가족과 함께", "친구와 함께", "혼자서", "연인과 함께"];
@@ -61,6 +62,7 @@ export default function SearchPage() {
           </svg>
         </button>
       </div>
+      <SearchPhoto />
     </>
   );
 }
