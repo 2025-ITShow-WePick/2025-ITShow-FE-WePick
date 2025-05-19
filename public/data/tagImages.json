@@ -1,0 +1,24 @@
+{
+  "가족과 함께": [
+    "/images/searchfamily1.jpg"
+  ],
+  "친구와 함께": [
+    "/images/searchfriend1.jpg",
+    "/images/searchfriend2.jpg",
+    "/images/searchfriend3.jpg",
+    "/images/searchfriend4.jpg"
+  ],
+  "혼자서": [
+    "/images/searchalone1.jpg",
+    "/images/searchalone2.jpg",
+    "/images/searchalone3.jpg"
+  ],
+  "연인과 함께": [
+    "/images/searchcouple1.jpg",
+    "/images/searchcouple2.jpg",
+    "/images/searchcouple3.jpg",
+    "/images/searchcouple4.jpg",
+    "/images/searchcouple5.jpg",
+    "/images/searchcouple6.jpg"
+]
+}
