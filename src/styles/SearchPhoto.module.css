@@ -1,0 +1,108 @@
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard.ttf") format("truetype");
+}
+
+.placeholderWrapper {
+  position: relative;
+  width: 234px;
+  height: 650px;
+  flex-shrink: 0;
+  overflow: visible;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.placeholderImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.placeholderBox {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.placeholderStack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #d5d5d5;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stack1 {
+  transform: rotate(-7.253deg) translate(110px, 120px);
+  z-index: 1;
+}
+.stack2 {
+  transform: rotate(7.744deg) translate(375px, 165px);
+  z-index: 2;
+}
+.stack3 {
+  transform: rotate(-7.573deg) translate(590px, 105px);
+  z-index: 3;
+}
+.stack4 {
+  transform: rotate(2.373deg) translate(850px, 140px);
+  z-index: 4;
+}
+.stack5 {
+  transform: rotate(19.09deg) translate(1050px, -310px);
+  z-index: 5;
+}
+
+.placeholderClick {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translateX(580px) translateY(0);
+  z-index: 5;
+  color: #898989;
+  user-select: none;
+  opacity: 1;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.placeholderClick.hide {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
+  pointer-events: none;
+}
+
+.clickIcon {
+  transition: opacity 0.4s ease;
+}
+
+.clickText {
+  color: #898989;
+  font-family: "Pretendard";
+  font-size: 15px;
+  font-weight: 400;
+  transition: opacity 0.4s ease;
+}
+
+.sorted1 {
+  transform: rotate(0deg) translate(100px, 20px);
+  z-index: 1;
+}
+.sorted2 {
+  transform: rotate(0deg) translate(350px, 80px);
+  z-index: 2;
+}
+.sorted3 {
+  transform: rotate(0deg) translate(600px, 20px);
+  z-index: 3;
+}
+.sorted4 {
+  transform: rotate(0deg) translate(850px, 80px);
+  z-index: 4;
+}
+.sorted5 {
+  transform: rotate(0deg) translate(1100px, 20px);
+  z-index: 5;
+}
