@@ -1,41 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styles from "../styles/SearchPhoto.module.css";
-import tagImages from "../data/tagImages.json"; // JSON import
+import tagImages from "../data/tagImages.json";
 
 export default function SearchPhoto({ tag }) {
   const [clicked, setClicked] = useState(false);
+  const scrollRef = useRef(null);
 
-  const handleToggle = () => {
-    setClicked((prev) => !prev);
-  };
-
-  // 현재 태그의 이미지 배열
   const images = tagImages[tag] || [];
+  const stackedImages = images.slice(-5);
+
+  useEffect(() => {
+    if (clicked && scrollRef.current) {
+      // spread(펼친) 상태에서 스크롤 중앙 정렬
+      const scrollEl = scrollRef.current;
+      const centerX = (scrollEl.scrollWidth - scrollEl.clientWidth) / 2;
+      scrollEl.scrollLeft = centerX;
+    }
+  }, [clicked]);
+
+  const handleToggle = () => setClicked((prev) => !prev);
 
   return (
     <div className={styles.placeholderWrapper}>
-      <div className={styles.placeholderBox} onClick={handleToggle}>
-        {[0, 1, 2, 3, 4].map((n) => (
-          <div
-            key={n}
-            className={`${styles.placeholderStack} ${
-              clicked ? styles[`sorted${n + 1}`] : styles[`stack${n + 1}`]
-            }`}
-          >
-            {images[n] && (
+      <div
+        className={`${styles.placeholderBox} ${clicked ? styles.expanded : ""}`}
+        onClick={handleToggle}
+        style={{ cursor: "pointer" }}
+      >
+        {/* Stacked 상태: 항상 렌더링, 클릭 시 숨김 처리 */}
+        <div
+          className={`${styles.stackedLayer} ${clicked ? styles.hidden : ""}`}
+        >
+          {stackedImages.map((img, n) => (
+            <div
+              key={n}
+              className={`${styles.placeholderStack} ${
+                styles[`stack${n + 1}`]
+              }`}
+            >
               <img
-                src={images[n]}
+                src={img}
                 alt={`추천 이미지 ${n + 1}`}
                 className={styles.stackImage}
               />
-            )}
-          </div>
-        ))}
-
-        {!clicked && (
-          <div className={`${styles.placeholderClick}`}>
+            </div>
+          ))}
+          <div className={styles.placeholderClick}>
             <div className={styles.clickIcon}>
-              {/* SVG 그대로 유지 */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="30"
@@ -61,7 +72,28 @@ export default function SearchPhoto({ tag }) {
             </div>
             <div className={styles.clickText}>click</div>
           </div>
-        )}
+        </div>
+
+        {/* Sorted 상태: 항상 렌더링, 클릭 시만 보임 */}
+        <div
+          className={styles.sortedScroll}
+          ref={scrollRef}
+          style={{ visibility: clicked ? "visible" : "hidden" }}
+        >
+          {images.map((img, i) => (
+            <div key={i} className={styles.sortedSlot}>
+              <div className={styles.sortedContainer}>
+                {img && (
+                  <img
+                    src={img}
+                    alt={`추천 이미지 ${i + 1}`}
+                    className={styles.stackImage}
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
