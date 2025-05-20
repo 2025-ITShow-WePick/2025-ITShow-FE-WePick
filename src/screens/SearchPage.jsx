@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import styles from "../styles/SearchPage.module.css";
 import Logo from "../components/Logo";
 import Hashtag from "../components/Hashtag";
@@ -6,16 +7,19 @@ import SearchPhoto from "../components/SearchPhoto";
 
 export default function SearchPage() {
   const whoList = ["가족과 함께", "친구와 함께", "혼자서", "연인과 함께"];
-  const [selectedWho, setSelectedWho] = useState("");
   const [isPlusSelected, setIsPlusSelected] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // URL 쿼리에서 who 값 가져오기
+  const selectedWho = searchParams.get("who") || "";
 
   const handleHashtagClick = (who) => {
-    setSelectedWho(who);
+    setSearchParams({ who }); // 쿼리 파라미터 변경
   };
 
   const handlePlusClick = () => {
     setIsPlusSelected((prev) => !prev);
-    setSelectedWho(""); // 클릭될 때마다 초기화
+    setSearchParams({}); // 쿼리 파라미터 초기화
   };
 
   const iconColor = isPlusSelected ? "#000000" : "#8b8b8b";
@@ -62,7 +66,9 @@ export default function SearchPage() {
           </svg>
         </button>
       </div>
-      <SearchPhoto />
+
+      {/* 선택된 태그가 있을 때만 SearchPhoto 렌더링 */}
+      <SearchPhoto tag={selectedWho} />
     </>
   );
 }
