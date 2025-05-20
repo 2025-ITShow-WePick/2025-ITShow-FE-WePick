@@ -4,6 +4,7 @@ import tagImages from "../data/tagImages.json";
 
 export default function SearchPhoto({ tag }) {
   const [clicked, setClicked] = useState(false);
+  const [showSorted, setShowSorted] = useState(false);
   const scrollRef = useRef(null);
 
   const images = tagImages[tag] || [];
@@ -16,6 +17,18 @@ export default function SearchPhoto({ tag }) {
       const centerX = (scrollEl.scrollWidth - scrollEl.clientWidth) / 2;
       scrollEl.scrollLeft = centerX;
     }
+  }, [clicked]);
+
+  useEffect(() => {
+    let timeout;
+    if (clicked) {
+      timeout = setTimeout(() => {
+        setShowSorted(true);
+      }, 400); // stackedLayer의 transition 시간에 맞춤
+    } else {
+      setShowSorted(false); // 클릭 해제 시 즉시 정렬 이미지 감춤
+    }
+    return () => clearTimeout(timeout);
   }, [clicked]);
 
   const handleToggle = () => setClicked((prev) => !prev);
@@ -74,26 +87,23 @@ export default function SearchPhoto({ tag }) {
           </div>
         </div>
 
-        {/* Sorted 상태: 항상 렌더링, 클릭 시만 보임 */}
-        <div
-          className={styles.sortedScroll}
-          ref={scrollRef}
-          style={{ visibility: clicked ? "visible" : "hidden" }}
-        >
-          {images.map((img, i) => (
-            <div key={i} className={styles.sortedSlot}>
-              <div className={styles.sortedContainer}>
-                {img && (
-                  <img
-                    src={img}
-                    alt={`추천 이미지 ${i + 1}`}
-                    className={styles.stackImage}
-                  />
-                )}
+        {showSorted && (
+          <div className={styles.sortedScroll} ref={scrollRef}>
+            {images.map((img, i) => (
+              <div key={i} className={styles.sortedSlot}>
+                <div className={styles.sortedContainer}>
+                  {img && (
+                    <img
+                      src={img}
+                      alt={`추천 이미지 ${i + 1}`}
+                      className={styles.stackImage}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
