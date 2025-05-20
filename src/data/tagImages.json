@@ -1,7 +1,5 @@
 {
-  "가족과 함께": [
-    "/images/searchfamily1.jpg"
-  ],
+  "가족과 함께": ["/images/searchfamily1.jpg"],
   "친구와 함께": [
     "/images/searchfriend1.jpg",
     "/images/searchfriend2.jpg",
@@ -20,5 +18,5 @@
     "/images/searchcouple4.jpg",
     "/images/searchcouple5.jpg",
     "/images/searchcouple6.jpg"
-]
+  ]
 }
