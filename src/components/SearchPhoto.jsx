@@ -7,7 +7,9 @@ export default function SearchPhoto({ tag }) {
   const [showSorted, setShowSorted] = useState(false);
   const scrollRef = useRef(null);
 
-  const images = tagImages[tag] || [];
+  // tag가 없으면 모든 태그 이미지 합치기
+  const images = tag ? tagImages[tag] || [] : Object.values(tagImages).flat();
+
   // 최신 5개를 왼쪽부터 보이게(=slice(-5))
   const stackedImages = images.slice(-5);
   // 5개 미만이면 뒤에 null로 채워서 항상 5개 자리
