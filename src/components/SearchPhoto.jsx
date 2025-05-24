@@ -7,12 +7,19 @@ export default function SearchPhoto({ tag }) {
   const [showSorted, setShowSorted] = useState(false);
   const scrollRef = useRef(null);
 
-  const images = tagImages[tag] || [];
+  // tag가 없으면 모든 태그 이미지 합치기
+  const images = tag ? tagImages[tag] || [] : Object.values(tagImages).flat();
+
+  // 최신 5개를 왼쪽부터 보이게(=slice(-5))
   const stackedImages = images.slice(-5);
+  // 5개 미만이면 뒤에 null로 채워서 항상 5개 자리
+  while (stackedImages.length < 5) {
+    stackedImages.push(null);
+  }
 
   useEffect(() => {
     if (clicked && scrollRef.current) {
-      // spread(펼친) 상태에서 스크롤 중앙 정렬
+      // 펼친 상태에서 스크롤 중앙 정렬
       const scrollEl = scrollRef.current;
       const centerX = (scrollEl.scrollWidth - scrollEl.clientWidth) / 2;
       scrollEl.scrollLeft = centerX;
@@ -24,9 +31,9 @@ export default function SearchPhoto({ tag }) {
     if (clicked) {
       timeout = setTimeout(() => {
         setShowSorted(true);
-      }, 400); // stackedLayer의 transition 시간에 맞춤
+      }, 400);
     } else {
-      setShowSorted(false); // 클릭 해제 시 즉시 정렬 이미지 감춤
+      setShowSorted(false);
     }
     return () => clearTimeout(timeout);
   }, [clicked]);
@@ -40,7 +47,7 @@ export default function SearchPhoto({ tag }) {
         onClick={handleToggle}
         style={{ cursor: "pointer" }}
       >
-        {/* Stacked 상태: 항상 렌더링, 클릭 시 숨김 처리 */}
+        {/* Stacked 상태: 항상 5개 자리, 이미지 없으면 회색 컨테이너 */}
         <div
           className={`${styles.stackedLayer} ${clicked ? styles.hidden : ""}`}
         >
@@ -51,11 +58,21 @@ export default function SearchPhoto({ tag }) {
                 styles[`stack${n + 1}`]
               }`}
             >
-              <img
-                src={img}
-                alt={`추천 이미지 ${n + 1}`}
-                className={styles.stackImage}
-              />
+              {img ? (
+                <img
+                  src={img}
+                  alt={`추천 이미지 ${n + 1}`}
+                  className={styles.stackImage}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "#d5d5d5",
+                  }}
+                />
+              )}
             </div>
           ))}
           <div className={styles.placeholderClick}>
@@ -87,18 +104,17 @@ export default function SearchPhoto({ tag }) {
           </div>
         </div>
 
+        {/* 펼친(정렬) 상태: 실제 있는 이미지만 왼쪽부터 */}
         {showSorted && (
           <div className={styles.sortedScroll} ref={scrollRef}>
             {images.map((img, i) => (
               <div key={i} className={styles.sortedSlot}>
                 <div className={styles.sortedContainer}>
-                  {img && (
-                    <img
-                      src={img}
-                      alt={`추천 이미지 ${i + 1}`}
-                      className={styles.stackImage}
-                    />
-                  )}
+                  <img
+                    src={img}
+                    alt={`추천 이미지 ${i + 1}`}
+                    className={styles.stackImage}
+                  />
                 </div>
               </div>
             ))}
