@@ -2,40 +2,39 @@ import React, { useState, useRef, useEffect } from "react";
 import styles from "../styles/SearchPhoto.module.css";
 import tagImages from "../data/tagImages.json";
 
+const IMAGE_WIDTH = 234;
+const IMAGE_HEIGHT = 650;
+const IMAGE_GAP = 25;
+
+const stackedTransforms = [
+  "rotate(-7.253deg) translate(110px, 120px)",
+  "rotate(7.744deg) translate(375px, 165px)",
+  "rotate(-7.573deg) translate(590px, 105px)",
+  "rotate(2.373deg) translate(850px, 140px)",
+  "rotate(19.09deg) translate(1050px, -310px)",
+];
+
+function getStackedTransform(n) {
+  return stackedTransforms[n] || "none";
+}
+
 export default function SearchPhoto({ tag }) {
   const [clicked, setClicked] = useState(false);
-  const [showSorted, setShowSorted] = useState(false);
   const scrollRef = useRef(null);
 
-  // tag가 없으면 모든 태그 이미지 합치기
   const images = tag ? tagImages[tag] || [] : Object.values(tagImages).flat();
 
-  // 최신 5개를 왼쪽부터 보이게(=slice(-5))
   const stackedImages = images.slice(-5);
-  // 5개 미만이면 뒤에 null로 채워서 항상 5개 자리
   while (stackedImages.length < 5) {
-    stackedImages.push(null);
+    stackedImages.push(null); // 왼쪽부터 채우기
   }
 
   useEffect(() => {
     if (clicked && scrollRef.current) {
-      // 펼친 상태에서 스크롤 중앙 정렬
       const scrollEl = scrollRef.current;
       const centerX = (scrollEl.scrollWidth - scrollEl.clientWidth) / 2;
       scrollEl.scrollLeft = centerX;
     }
-  }, [clicked]);
-
-  useEffect(() => {
-    let timeout;
-    if (clicked) {
-      timeout = setTimeout(() => {
-        setShowSorted(true);
-      }, 400);
-    } else {
-      setShowSorted(false);
-    }
-    return () => clearTimeout(timeout);
   }, [clicked]);
 
   const handleToggle = () => setClicked((prev) => !prev);
@@ -45,18 +44,24 @@ export default function SearchPhoto({ tag }) {
       <div
         className={`${styles.placeholderBox} ${clicked ? styles.expanded : ""}`}
         onClick={handleToggle}
-        style={{ cursor: "pointer" }}
+        ref={scrollRef}
       >
-        {/* Stacked 상태: 항상 5개 자리, 이미지 없으면 회색 컨테이너 */}
-        <div
-          className={`${styles.stackedLayer} ${clicked ? styles.hidden : ""}`}
-        >
-          {stackedImages.map((img, n) => (
+        {(clicked ? images : stackedImages).map((img, n) => {
+          const total = clicked ? images.length : stackedImages.length;
+          const transformStyle = clicked
+            ? `translateX(${n * (IMAGE_WIDTH + IMAGE_GAP)}px) translateY(${
+                n % 2 === 0 ? -40 : 40
+              }px)`
+            : getStackedTransform(n);
+
+          return (
             <div
               key={n}
-              className={`${styles.placeholderStack} ${
-                styles[`stack${n + 1}`]
-              }`}
+              className={styles.animatedImage}
+              style={{
+                transform: transformStyle,
+                zIndex: clicked ? images.length - n : stackedImages.length - n,
+              }}
             >
               {img ? (
                 <img
@@ -65,18 +70,16 @@ export default function SearchPhoto({ tag }) {
                   className={styles.stackImage}
                 />
               ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "#d5d5d5",
-                  }}
-                />
+                <div className={styles.imageFallback} />
               )}
             </div>
-          ))}
+          );
+        })}
+
+        {!clicked && (
           <div className={styles.placeholderClick}>
             <div className={styles.clickIcon}>
+              {/* 아이콘 SVG */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="30"
@@ -101,23 +104,6 @@ export default function SearchPhoto({ tag }) {
               </svg>
             </div>
             <div className={styles.clickText}>click</div>
-          </div>
-        </div>
-
-        {/* 펼친(정렬) 상태: 실제 있는 이미지만 왼쪽부터 */}
-        {showSorted && (
-          <div className={styles.sortedScroll} ref={scrollRef}>
-            {images.map((img, i) => (
-              <div key={i} className={styles.sortedSlot}>
-                <div className={styles.sortedContainer}>
-                  <img
-                    src={img}
-                    alt={`추천 이미지 ${i + 1}`}
-                    className={styles.stackImage}
-                  />
-                </div>
-              </div>
-            ))}
           </div>
         )}
       </div>
