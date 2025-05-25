@@ -19,13 +19,13 @@
   cursor: pointer;
   white-space: nowrap;
   left: -42%;
-  bottom: 0;
 }
 
 .placeholderBox.expanded {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  padding-left: 60px;
   padding-bottom: 10px;
   left: unset;
   transform: unset;
@@ -35,8 +35,6 @@
   position: absolute;
   width: 234px;
   height: 650px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
-  border-radius: 24px;
   overflow: hidden;
   background: #d5d5d5;
   cursor: pointer;
@@ -48,13 +46,12 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  border-radius: 24px;
 }
 
 .imageFallback {
   width: 100%;
   height: 100%;
-  background-color: #d5d5d5;
+  background: #d9d9d9;
 }
 
 .placeholderClick {

@@ -50,7 +50,7 @@ export default function SearchPhoto({ tag }) {
           const total = clicked ? images.length : stackedImages.length;
           const transformStyle = clicked
             ? `translateX(${n * (IMAGE_WIDTH + IMAGE_GAP)}px) translateY(${
-                n % 2 === 0 ? -20 : 20
+                n % 2 === 0 ? -40 : 40
               }px)`
             : getStackedTransform(n);
 
@@ -60,8 +60,7 @@ export default function SearchPhoto({ tag }) {
               className={styles.animatedImage}
               style={{
                 transform: transformStyle,
-                zIndex: clicked ? total - n : n + 1,
-                opacity: img ? 1 : 0.5,
+                zIndex: clicked ? images.length - n : stackedImages.length - n,
               }}
             >
               {img ? (
