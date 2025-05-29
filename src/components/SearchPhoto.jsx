@@ -31,9 +31,7 @@ export default function SearchPhoto({ tag }) {
 
   useEffect(() => {
     if (clicked && scrollRef.current) {
-      const scrollEl = scrollRef.current;
-      const centerX = (scrollEl.scrollWidth - scrollEl.clientWidth) / 2;
-      scrollEl.scrollLeft = centerX;
+      scrollRef.current.scrollLeft = 0;
     }
   }, [clicked]);
 
