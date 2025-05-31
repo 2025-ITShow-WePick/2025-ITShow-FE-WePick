@@ -35,12 +35,11 @@ body {
   transform: translateX(-70px);
   margin: 0 auto;
   color: #000;
-  margin-top: 20px;
   font-family: "Helvetica";
   font-size: 40px;
   font-weight: 700;
   cursor: pointer;
-  margin-top: 60px;
+  margin-top: 80px;
 }
 
 .imageStack {
