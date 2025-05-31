@@ -1,0 +1,98 @@
+.container {
+  padding: 40px;
+  font-family: "Pretendard", sans-serif;
+  position: relative;
+}
+
+.content {
+  padding: 234px;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: row;
+  gap: 38px;
+}
+
+.left {
+  flex-shrink: 0;
+}
+
+.photo {
+  width: 234px;
+  height: 588px;
+  object-fit: cover;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  padding-top: 6px;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  width: auto;
+  color: #555;
+  font-family: Pretendard;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.72px;
+  margin-bottom: 5px;
+}
+
+.inputBox {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 13px;
+  width: 700px;
+  height: 50px;
+  box-sizing: border-box;
+}
+
+.icon {
+  font-size: 18px;
+  opacity: 0.6;
+}
+
+.memoBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.textarea {
+  width: auto;
+  height: 250px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #444;
+  background-color: #fff;
+  white-space: pre-line;
+  outline: none;
+}
+
+.nextBtn {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pointer {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
