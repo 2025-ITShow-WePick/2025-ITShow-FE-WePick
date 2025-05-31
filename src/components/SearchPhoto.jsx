@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "../styles/SearchPhoto.module.css";
 import tagImages from "../data/tagImages.json";
+import { IoIosArrowForward } from "react-icons/io";
 
 const IMAGE_WIDTH = 234;
-const IMAGE_HEIGHT = 650;
 const IMAGE_GAP = 25;
 
 const stackedTransforms = [
@@ -62,11 +62,27 @@ export default function SearchPhoto({ tag }) {
               }}
             >
               {img ? (
-                <img
-                  src={img}
-                  alt={`추천 이미지 ${n + 1}`}
-                  className={styles.stackImage}
-                />
+                <div className={styles.imageWrapper}>
+                  <img
+                    src={img.src}
+                    alt={`추천 이미지 ${n + 1}`}
+                    className={styles.stackImage}
+                  />
+                  {clicked && (
+                    <div className={styles.overlay}>
+                      <div className={styles.overlayText}>
+                        <div className={styles.datePlace}>
+                          <div>{img.date}</div>
+                          <div>{img.place}</div>
+                        </div>
+                        <div className={styles.more}>
+                          <span>더보기{"  "}</span>
+                          <IoIosArrowForward className={styles.moreIcon} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className={styles.imageFallback} />
               )}
