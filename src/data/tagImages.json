@@ -1,22 +1,80 @@
 {
-  "가족과 함께": ["/images/searchfamily1.jpg"],
+  "가족과 함께": [
+    {
+      "src": "/images/searchfamily1.jpg",
+      "date": "2024.04.12",
+      "place": "서울 어린이대공원"
+    }
+  ],
   "친구와 함께": [
-    "/images/searchfriend1.jpg",
-    "/images/searchfriend2.jpg",
-    "/images/searchfriend3.jpg",
-    "/images/searchfriend4.jpg"
+    {
+      "src": "/images/searchfriend1.jpg",
+      "date": "2024.03.10",
+      "place": "홍대 거리"
+    },
+    {
+      "src": "/images/searchfriend2.jpg",
+      "date": "2024.03.15",
+      "place": "부산 해운대"
+    },
+    {
+      "src": "/images/searchfriend3.jpg",
+      "date": "2024.03.20",
+      "place": "강릉 안목해변"
+    },
+    {
+      "src": "/images/searchfriend4.jpg",
+      "date": "2024.04.01",
+      "place": "제주 애월"
+    }
   ],
   "혼자서": [
-    "/images/searchalone1.jpg",
-    "/images/searchalone2.jpg",
-    "/images/searchalone3.jpg"
+    {
+      "src": "/images/searchalone1.jpg",
+      "date": "2024.02.25",
+      "place": "서울 북촌"
+    },
+    {
+      "src": "/images/searchalone2.jpg",
+      "date": "2024.03.08",
+      "place": "전주 한옥마을"
+    },
+    {
+      "src": "/images/searchalone3.jpg",
+      "date": "2024.03.18",
+      "place": "부산 감천문화마을"
+    }
   ],
   "연인과 함께": [
-    "/images/searchcouple1.jpg",
-    "/images/searchcouple2.jpg",
-    "/images/searchcouple3.jpg",
-    "/images/searchcouple4.jpg",
-    "/images/searchcouple5.jpg",
-    "/images/searchcouple6.jpg"
+    {
+      "src": "/images/searchcouple1.jpg",
+      "date": "2024.02.14",
+      "place": "남산타워"
+    },
+    {
+      "src": "/images/searchcouple2.jpg",
+      "date": "2024.03.11",
+      "place": "여의도 한강공원"
+    },
+    {
+      "src": "/images/searchcouple3.jpg",
+      "date": "2024.03.21",
+      "place": "속초 바다"
+    },
+    {
+      "src": "/images/searchcouple4.jpg",
+      "date": "2024.04.05",
+      "place": "제주 오설록"
+    },
+    {
+      "src": "/images/searchcouple5.jpg",
+      "date": "2024.04.20",
+      "place": "서울숲"
+    },
+    {
+      "src": "/images/searchcouple6.jpg",
+      "date": "2024.04.30",
+      "place": "경주 대릉원"
+    }
   ]
 }
