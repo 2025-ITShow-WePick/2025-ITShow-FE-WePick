@@ -1,35 +1,38 @@
-// import React, { useEffect } from 'react';
+import React from 'react';
+import styles from '../styles/CreatePostPage.module.css'
 
-// const PostImageInput = () => {
-//   useEffect(() => {
-//     console.time("PostImageInput 렌더링");  // 시작
+const PostImageInput = ({ value, onImageChange }) => {
 
-//     // 컴포넌트 언마운트 시 종료 타이머
-//     return () => {
-//       console.timeEnd("PostImageInput 렌더링");  // 끝
-//     };
-//   }, []);  // 빈 배열로 마운트/언마운트 시에만 실행
-
-//   return (
-//     <div>
-//       <label>Image:</label>
-//       <input type="file" />
-//     </div>
-//   );
-// };
-
-// export default PostImageInput;
-import React, { useEffect } from 'react';
-
-const ImageInput = () => {
-
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    onImageChange(file);
+  };
 
   return (
-    <div>
-      <label>사진 업로드</label>
-      <input type="file" />
+    <div className={styles.imageInputContainer}>
+      <p className={styles.uploadTitle}>사진 업로드</p>
+      <div className={styles.uploadBox}>
+        <input
+          type="file"
+          onChange={handleFileChange}
+          className={styles.uploadInput}
+          id="fileUpload"
+          style={{ display: 'none' }}
+        />
+        <label htmlFor="fileUpload" className={styles.uploadLabel}>
+          <span className={styles.plusIcon}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="51" viewBox="0 0 50 22" fill="none">
+              <path d="M24.9292 0.5V50.5" stroke="black" strokeWidth="3" />
+              <path d="M0 25.4302L50 25.4302" stroke="black" strokeWidth="3" />
+            </svg>
+          </span>
+          <span className={styles.uploadText}>사진 업로드</span>
+        </label>
+        <span className={styles.cameraText}>(사진 찍기)</span>
+      </div>
     </div>
   );
-};
+}
 
-export default ImageInput;
+
+export default PostImageInput;
