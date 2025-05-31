@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../styles/SearchPhoto.module.css";
 import tagImages from "../data/tagImages.json";
 import { IoIosArrowForward } from "react-icons/io";
@@ -36,6 +37,11 @@ export default function SearchPhoto({ tag }) {
   }, [clicked]);
 
   const handleToggle = () => setClicked((prev) => !prev);
+
+  const navigate = useNavigate();
+  const handleMoveClick = () => {
+    navigate("/searchdetail");
+  };
 
   return (
     <div className={styles.placeholderWrapper}>
@@ -76,7 +82,7 @@ export default function SearchPhoto({ tag }) {
                           <div>{img.place}</div>
                         </div>
                         <div className={styles.more}>
-                          <span>더보기{"  "}</span>
+                          <span onClick={handleMoveClick}>더보기{"  "}</span>
                           <IoIosArrowForward className={styles.moreIcon} />
                         </div>
                       </div>
