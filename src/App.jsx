@@ -16,7 +16,6 @@ function App() {
         <Route path="/searchdetail" element={<SearchPageDetail />} />
         <Route path="/post" element={<CreatePostPage />} />
         {/* <Route path="/posttest" element={<PostTest />} /> */}
-        <Route path="/post" element={<CreatePostPage2 />} />
       </Routes>
     </Router>
   );
