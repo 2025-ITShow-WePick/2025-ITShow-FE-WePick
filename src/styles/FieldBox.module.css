@@ -1,0 +1,70 @@
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard.ttf") format("truetype");
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: #555;
+  font-size: 17px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.inputBox {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 13px;
+  width: 700px;
+  height: 50px;
+  box-sizing: border-box;
+}
+
+.inputBox span:first-child {
+  flex: 1;
+}
+
+.icon {
+  margin-left: auto;
+  font-size: 18px;
+  opacity: 0.6;
+}
+
+.memoBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.textarea {
+  width: auto;
+  height: 250px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #555;
+  background-color: #fff;
+  white-space: pre-line;
+  outline: none;
+  font-family: "Pretendard";
+}
+
+.value {
+  color: #555;
+  font-family: "Pretendard";
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 28px;
+  letter-spacing: 0.6px;
+}
