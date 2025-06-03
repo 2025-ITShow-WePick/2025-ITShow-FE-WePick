@@ -1,0 +1,62 @@
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard.ttf") format("truetype");
+}
+
+.container {
+  width: 100%;
+  height: auto;
+  font-family: "Pretendard";
+  position: relative;
+  over-flow: hidden;
+}
+
+.content {
+  padding-top: 40px;
+  display: flex;
+  flex-direction: row;
+  gap: 60px;
+  position: relative;
+  over-flow: hidden;
+  overflow-x: auto; /* 반드시 필요 */
+  scroll-behavior: smooth;
+}
+
+.photo {
+  width: 234px;
+  height: 588px;
+  object-fit: cover;
+  margin-right: 53px;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  padding-top: 6px;
+  gap: 15px;
+}
+
+.nextButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
+  left: 82%;
+  top: 45%;
+  min-width: 120px;
+  position: fixed;
+  z-index: 99;
+}
+
+.buttonSubtitle {
+  color: #bababa;
+  text-align: center;
+  font-family: "Pretendard", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: pre-line;
+  margin-top: 20px;
+  line-height: 1.5;
+}
