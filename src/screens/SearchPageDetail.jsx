@@ -32,12 +32,14 @@ export default function SearchPageDetail() {
     const idx = idParam ? getIndexById(idParam) : 0;
     return idx !== -1 ? idx : 0;
   });
+
   useEffect(() => {
     const idx = idParam ? getIndexById(idParam) : 0;
     if (idx !== -1 && idx !== currentIndex) {
       setCurrentIndex(idx);
     }
   }, [idParam]);
+
   useEffect(() => {
     const ref = containerRefs.current[currentIndex];
     const container = ref?.parentNode;
@@ -49,9 +51,13 @@ export default function SearchPageDetail() {
       });
     }
   }, [currentIndex]);
+
   const handleNext = () => {
     if (currentIndex < searchView.length - 1) {
       navigate(`/searchdetail?id=${searchView[currentIndex + 1].id}`);
+    } else {
+      // 마지막 카드에서 누르면 첫 번째 카드로 이동!
+      navigate(`/searchdetail?id=${searchView[0].id}`);
     }
   };
 
