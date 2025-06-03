@@ -126,9 +126,11 @@ export default function SplashPage() {
         <Link to="/search">
           <button className={styles.overlayBtn1}>SEARCH</button>
         </Link>
-        <button className={styles.overlayBtn2}>
-          UPLOAD &nbsp;&nbsp;&nbsp;A &nbsp;&nbsp;&nbsp;PHOTO
-        </button>
+        <Link to="/post">
+          <button className={styles.overlayBtn2}>
+            UPLOAD &nbsp;&nbsp;&nbsp;A &nbsp;&nbsp;&nbsp;PHOTO
+          </button>
+        </Link>
       </div>
     </>
   );
