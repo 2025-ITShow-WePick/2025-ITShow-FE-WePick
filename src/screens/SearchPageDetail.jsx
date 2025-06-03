@@ -12,19 +12,39 @@ export default function SearchPageDetail() {
   const navigate = useNavigate();
   const idParam = searchParams.get("id");
 
-  // 새로고침 감지
-  useEffect(() => {
-    // 새로고침 또는 페이지 진입 시
-    if (performance && performance.getEntriesByType) {
-      const navEntries = performance.getEntriesByType("navigation");
-      if (navEntries.length > 0 && navEntries[0].type === "reload") {
-        // 새로고침이면 무조건 id=1로 이동
-        navigate("/searchdetail?id=1", { replace: true });
-      }
-    }
-  }, [navigate]);
+  // 터치패드 제스처를 위한 상태
+  const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [lastWheelTime, setLastWheelTime] = useState(0);
+  const [lastKeyTime, setLastKeyTime] = useState(0);
 
-  // 이하 기존 코드 그대로
+  // 새로고침 감지 (실제 새로고침만 감지하도록 수정)
+  useEffect(() => {
+    // 실제 새로고침인지 확인 (referrer가 같은 도메인이면 일반 네비게이션)
+    const isActualReload = () => {
+      if (performance && performance.getEntriesByType) {
+        const navEntries = performance.getEntriesByType("navigation");
+        if (navEntries.length > 0) {
+          // type이 'reload'이고 referrer가 비어있거나 같은 페이지면 실제 새로고침
+          return (
+            navEntries[0].type === "reload" &&
+            (document.referrer === "" ||
+              document.referrer === window.location.href)
+          );
+        }
+      }
+
+      // 대체 방법: sessionStorage를 사용한 새로고침 감지
+      const navigationStart = performance.getEntriesByType("navigation")[0];
+      return navigationStart && navigationStart.type === "reload";
+    };
+
+    // 실제 새로고침일 때만 id=1로 이동
+    if (isActualReload() && !idParam) {
+      navigate("/searchdetail?id=1", { replace: true });
+    }
+  }, [navigate, idParam]);
+
   // id에 해당하는 인덱스 찾기
   const getIndexById = (id) =>
     searchView.findIndex((item) => String(item.id) === String(id));
@@ -52,6 +72,25 @@ export default function SearchPageDetail() {
     }
   }, [currentIndex]);
 
+  // 초기 로딩 시 해당 id의 카드로 즉시 이동 (애니메이션 없이)
+  useEffect(() => {
+    // DOM이 완전히 렌더링될 때까지 기다림
+    const timer = setTimeout(() => {
+      const ref = containerRefs.current[currentIndex];
+      const container = ref?.parentNode;
+      if (container && ref) {
+        // 즉시 스크롤 (애니메이션 없음)
+        container.scrollTo({
+          left: ref.offsetLeft,
+          top: container.scrollTop,
+          behavior: "auto", // "smooth" 대신 "auto"로 즉시 이동
+        });
+      }
+    }, 100); // DOM 렌더링 대기시간 증가
+
+    return () => clearTimeout(timer);
+  }, [currentIndex]); // currentIndex가 변경될 때마다 실행
+
   const handleNext = () => {
     if (currentIndex < searchView.length - 1) {
       navigate(`/searchdetail?id=${searchView[currentIndex + 1].id}`);
@@ -60,6 +99,153 @@ export default function SearchPageDetail() {
       navigate(`/searchdetail?id=${searchView[0].id}`);
     }
   };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      navigate(`/searchdetail?id=${searchView[currentIndex - 1].id}`);
+    } else {
+      // 첫 번째 카드에서 누르면 마지막 카드로 이동!
+      navigate(`/searchdetail?id=${searchView[searchView.length - 1].id}`);
+    }
+  };
+
+  // 터치패드 제스처 이벤트 핸들러
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      setTouchStart({
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      });
+      setIsScrolling(false);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!touchStart.x || !touchStart.y) return;
+
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const diffX = touchStart.x - currentX;
+    const diffY = touchStart.y - currentY;
+
+    // 세로 스크롤이 더 크면 스크롤링으로 판단
+    if (Math.abs(diffY) > Math.abs(diffX)) {
+      setIsScrolling(true);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStart.x || !touchStart.y || isScrolling) {
+      setTouchStart({ x: 0, y: 0 });
+      setIsScrolling(false);
+      return;
+    }
+
+    const currentX = e.changedTouches[0].clientX;
+    const diffX = touchStart.x - currentX;
+    const minSwipeDistance = 80; // 최소 스와이프 거리 증가 (더 큰 제스처 필요)
+
+    if (Math.abs(diffX) > minSwipeDistance) {
+      if (diffX > 0) {
+        // 왼쪽으로 스와이프 -> 다음 페이지
+        handleNext();
+      } else {
+        // 오른쪽으로 스와이프 -> 이전 페이지
+        handlePrevious();
+      }
+    }
+
+    setTouchStart({ x: 0, y: 0 });
+    setIsScrolling(false);
+  };
+
+  // 마우스 휠 이벤트 핸들러 (터치패드 스크롤) - 쓰로틀링 적용
+  const handleWheel = (e) => {
+    const now = Date.now();
+    const wheelCooldown = 800; // 800ms 쿨다운 (조절 가능)
+
+    // 쿨다운 시간이 지나지 않았으면 무시
+    if (now - lastWheelTime < wheelCooldown) {
+      return;
+    }
+
+    // 수평 스크롤 감지
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 15) {
+      e.preventDefault();
+      setLastWheelTime(now);
+
+      if (e.deltaX > 0) {
+        // 오른쪽으로 스크롤 -> 다음 페이지
+        handleNext();
+      } else {
+        // 왼쪽으로 스크롤 -> 이전 페이지
+        handlePrevious();
+      }
+    }
+  };
+
+  // 키보드 이벤트 핸들러 (화살표 키 지원) - 쓰로틀링 적용
+  const handleKeyDown = (e) => {
+    const now = Date.now();
+    const keyCooldown = 300; // 300ms 쿨다운 (조절 가능)
+
+    // 쿨다운 시간이 지나지 않았으면 무시
+    if (now - lastKeyTime < keyCooldown) {
+      return;
+    }
+
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      setLastKeyTime(now);
+      handlePrevious();
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      setLastKeyTime(now);
+      handleNext();
+    }
+  };
+
+  // 이벤트 리스너 등록
+  useEffect(() => {
+    // 초기 로딩 시 해당 id의 카드로 즉시 이동하기 위한 지연
+    const timer = setTimeout(() => {
+      const ref = containerRefs.current[currentIndex];
+      const container = ref?.parentNode;
+      if (container && ref) {
+        container.scrollTo({
+          left: ref.offsetLeft,
+          top: container.scrollTop,
+          behavior: "auto", // 즉시 이동
+        });
+      }
+    }, 50); // 50ms 지연으로 DOM이 완전히 렌더링된 후 실행
+
+    const container = document.querySelector(`.${styles.content}`);
+    if (container) {
+      container.addEventListener("wheel", handleWheel, { passive: false });
+      container.addEventListener("touchstart", handleTouchStart, {
+        passive: true,
+      });
+      container.addEventListener("touchmove", handleTouchMove, {
+        passive: true,
+      });
+      container.addEventListener("touchend", handleTouchEnd, { passive: true });
+    }
+
+    // 키보드 이벤트는 document에 등록
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      if (container) {
+        container.removeEventListener("wheel", handleWheel);
+        container.removeEventListener("touchstart", handleTouchStart);
+        container.removeEventListener("touchmove", handleTouchMove);
+        container.removeEventListener("touchend", handleTouchEnd);
+      }
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentIndex]); // currentIndex가 변경될 때마다 이벤트 리스너 재등록
 
   return (
     <div className={styles.container}>
@@ -74,9 +260,9 @@ export default function SearchPageDetail() {
               height: "788px",
               paddingLeft: i === 0 ? "164px" : "200px",
               marginRight: i === searchView.length - 1 ? "400px" : 0,
+              transition: "opacity 0.3s",
               opacity:
                 i === currentIndex ? 1 : i === currentIndex + 1 ? 0.6 : 1,
-              transition: "opacity 0.3s",
               pointerEvents: i === currentIndex ? "auto" : "none",
             }}
             ref={(el) => (containerRefs.current[i] = el)}
