@@ -39,8 +39,8 @@ export default function SearchPhoto({ tag }) {
   const handleToggle = () => setClicked((prev) => !prev);
 
   const navigate = useNavigate();
-  const handleMoveClick = () => {
-    navigate("/searchdetail");
+  const handleMoveClick = (id) => {
+    navigate(`/searchdetail?id=${id}`);
   };
 
   return (
@@ -82,7 +82,9 @@ export default function SearchPhoto({ tag }) {
                           <div>{img.place}</div>
                         </div>
                         <div className={styles.more}>
-                          <span onClick={handleMoveClick}>더보기{"  "}</span>
+                          <span onClick={() => handleMoveClick(img.id)}>
+                            더보기{"  "}
+                          </span>
                           <IoIosArrowForward className={styles.moreIcon} />
                         </div>
                       </div>

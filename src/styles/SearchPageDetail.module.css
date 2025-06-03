@@ -4,23 +4,29 @@
 }
 
 .container {
-  padding: 40px;
+  width: 100%;
+  height: auto;
   font-family: "Pretendard";
   position: relative;
+  over-flow: hidden;
 }
 
 .content {
-  padding: 164px;
-  padding-top: 10px;
+  padding-top: 40px;
   display: flex;
   flex-direction: row;
-  gap: 38px;
+  gap: 60px;
+  position: relative;
+  over-flow: hidden;
+  overflow-x: auto; /* 반드시 필요 */
+  scroll-behavior: smooth;
 }
 
 .photo {
   width: 234px;
   height: 588px;
   object-fit: cover;
+  margin-right: 53px;
 }
 
 .right {
@@ -37,9 +43,11 @@
   justify-content: center;
   user-select: none;
   cursor: pointer;
-  margin-top: -120px;
-  margin-left: 60px;
+  left: 82%;
+  top: 45%;
   min-width: 120px;
+  position: fixed;
+  z-index: 99;
 }
 
 .buttonSubtitle {
