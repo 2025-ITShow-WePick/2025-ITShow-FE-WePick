@@ -1,27 +1,54 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import styles from "../styles/SearchPageDetail.module.css";
 import searchView from "../data/searchView.json";
 import Logo from "../components/Logo";
 import FieldBox from "../components/FieldBox";
 import MemoBox from "../components/MemoBox";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 export default function SearchPageDetail() {
   const containerRefs = useRef([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const idParam = searchParams.get("id");
 
+  // id에 해당하는 인덱스 찾기
+  const getIndexById = (id) =>
+    searchView.findIndex((item) => String(item.id) === String(id));
+
+  // currentIndex 상태
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    const idx = idParam ? getIndexById(idParam) : 0;
+    return idx !== -1 ? idx : 0;
+  });
+
+  // 쿼리 id 변화 시 currentIndex와 스크롤 동기화
+  useEffect(() => {
+    const idx = idParam ? getIndexById(idParam) : 0;
+    if (idx !== -1 && idx !== currentIndex) {
+      setCurrentIndex(idx);
+    }
+    // 스크롤 이동은 currentIndex가 바뀌었을 때 처리
+  }, [idParam]);
+
+  // currentIndex가 바뀌었을 때 스크롤 이동
+  useEffect(() => {
+    const ref = containerRefs.current[currentIndex];
+    const container = ref?.parentNode;
+    if (container && ref) {
+      container.scrollTo({
+        left: ref.offsetLeft,
+        top: container.scrollTop,
+        behavior: "smooth",
+      });
+    }
+  }, [currentIndex]);
+
+  // 다음 버튼 클릭
   const handleNext = () => {
     if (currentIndex < searchView.length - 1) {
-      const container = containerRefs.current[currentIndex].parentNode;
-      const nextIndex = currentIndex + 1;
-      const nextRef = containerRefs.current[nextIndex];
-      if (nextRef) {
-        container.scrollTo({
-          left: nextRef.offsetLeft,
-          top: container.scrollTop, // 현재 y 위치 유지
-          behavior: "smooth",
-        });
-        setCurrentIndex(nextIndex);
-      }
+      // setCurrentIndex를 직접 호출하지 않고 navigate만!
+      navigate(`/searchdetail?id=${searchView[currentIndex + 1].id}`);
     }
   };
 
@@ -31,14 +58,13 @@ export default function SearchPageDetail() {
       <div className={styles.content}>
         {searchView.map((currentResult, i) => (
           <div
-            key={i}
+            key={currentResult.id}
             style={{
               display: "flex",
               width: "1256px",
               height: "788px",
               paddingLeft: i === 0 ? "164px" : "200px",
               marginRight: i === searchView.length - 1 ? "400px" : 0,
-              // justifyContent: "center",
             }}
             ref={(el) => (containerRefs.current[i] = el)}
           >
