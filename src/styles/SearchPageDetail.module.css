@@ -4,23 +4,29 @@
 }
 
 .container {
-  padding: 40px;
+  width: 100%;
+  height: auto;
   font-family: "Pretendard";
   position: relative;
+  over-flow: hidden;
 }
 
 .content {
-  padding: 164px;
   padding-top: 10px;
   display: flex;
   flex-direction: row;
-  gap: 38px;
+  gap: 60px;
+  position: relative;
+  over-flow: hidden;
+  overflow-x: auto; /* 반드시 필요 */
+  scroll-behavior: smooth;
 }
 
 .photo {
   width: 234px;
   height: 588px;
   object-fit: cover;
+  margin-right: 53px;
 }
 
 .right {
@@ -37,9 +43,11 @@
   justify-content: center;
   user-select: none;
   cursor: pointer;
-  margin-top: -120px;
-  margin-left: 60px;
+  left: 82%;
+  top: 45%;
   min-width: 120px;
+  position: fixed;
+  z-index: 99;
 }
 
 .buttonSubtitle {
@@ -51,4 +59,8 @@
   white-space: pre-line;
   margin-top: 20px;
   line-height: 1.5;
+}
+
+.uploaded-images img:not(:first-child) {
+  padding-left: 320px; /* 첫 번째 제외하고 왼쪽 여백 */
 }
