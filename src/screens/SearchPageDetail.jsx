@@ -12,26 +12,32 @@ export default function SearchPageDetail() {
   const navigate = useNavigate();
   const idParam = searchParams.get("id");
 
+  // 새로고침 감지
+  useEffect(() => {
+    // 새로고침 또는 페이지 진입 시
+    if (performance && performance.getEntriesByType) {
+      const navEntries = performance.getEntriesByType("navigation");
+      if (navEntries.length > 0 && navEntries[0].type === "reload") {
+        // 새로고침이면 무조건 id=1로 이동
+        navigate("/searchdetail?id=1", { replace: true });
+      }
+    }
+  }, [navigate]);
+
+  // 이하 기존 코드 그대로
   // id에 해당하는 인덱스 찾기
   const getIndexById = (id) =>
     searchView.findIndex((item) => String(item.id) === String(id));
-
-  // currentIndex 상태
   const [currentIndex, setCurrentIndex] = useState(() => {
     const idx = idParam ? getIndexById(idParam) : 0;
     return idx !== -1 ? idx : 0;
   });
-
-  // 쿼리 id 변화 시 currentIndex와 스크롤 동기화
   useEffect(() => {
     const idx = idParam ? getIndexById(idParam) : 0;
     if (idx !== -1 && idx !== currentIndex) {
       setCurrentIndex(idx);
     }
-    // 스크롤 이동은 currentIndex가 바뀌었을 때 처리
   }, [idParam]);
-
-  // currentIndex가 바뀌었을 때 스크롤 이동
   useEffect(() => {
     const ref = containerRefs.current[currentIndex];
     const container = ref?.parentNode;
@@ -43,11 +49,8 @@ export default function SearchPageDetail() {
       });
     }
   }, [currentIndex]);
-
-  // 다음 버튼 클릭
   const handleNext = () => {
     if (currentIndex < searchView.length - 1) {
-      // setCurrentIndex를 직접 호출하지 않고 navigate만!
       navigate(`/searchdetail?id=${searchView[currentIndex + 1].id}`);
     }
   };
@@ -65,6 +68,10 @@ export default function SearchPageDetail() {
               height: "788px",
               paddingLeft: i === 0 ? "164px" : "200px",
               marginRight: i === searchView.length - 1 ? "400px" : 0,
+              opacity:
+                i === currentIndex ? 1 : i === currentIndex + 1 ? 0.6 : 1,
+              transition: "opacity 0.3s",
+              pointerEvents: i === currentIndex ? "auto" : "none",
             }}
             ref={(el) => (containerRefs.current[i] = el)}
           >
