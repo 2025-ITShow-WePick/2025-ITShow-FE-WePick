@@ -60,8 +60,18 @@ export default function SearchPhoto({ tag }) {
 
   const stackedImages = [...images].slice(-5);
   while (stackedImages.length < 5) {
-    stackedImages.unshift(null); // 왼쪽부터 채우기
+    stackedImages.push(null); // 왼쪽부터 채우기
   }
+
+  const pormatDate = (isoDate) => {
+    const date = new Date(isoDate);
+
+    const formatted = `${date.getFullYear()}.${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")}`;
+
+    return formatted;
+  };
 
   return (
     <div className={styles.placeholderWrapper}>
@@ -90,15 +100,14 @@ export default function SearchPhoto({ tag }) {
                 <div className={styles.imageWrapper}>
                   <img
                     src={img.imageUrl || "/fallback.jpg"} // 또는 백엔드의 필드 이름에 맞게 수정
-                    alt={`추천 이미지 ${n + 1}`}
                     className={styles.stackImage}
                   />
                   {clicked && (
                     <div className={styles.overlay}>
                       <div className={styles.overlayText}>
                         <div className={styles.datePlace}>
-                          <div>{img.date}</div>
-                          <div>{img.place}</div>
+                          <div>{pormatDate(img.date)}</div>
+                          <div>{img.location}</div>
                         </div>
                         <div className={styles.more}>
                           <span onClick={() => handleMoveClick(img.id)}>
