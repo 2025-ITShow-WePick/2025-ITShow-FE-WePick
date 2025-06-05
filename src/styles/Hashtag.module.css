@@ -6,15 +6,15 @@
 .hashtagBtn {
   display: flex;
   width: auto;
-  height: 40px;
-  padding: 0 26px;
+  height: 60px;
+  padding: 0 44px;
   justify-content: center;
   align-items: center;
   border-radius: 43px;
   border: 2px solid #8b8b8b;
   background: #fff;
   color: #8b8b8b;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .clicked {
