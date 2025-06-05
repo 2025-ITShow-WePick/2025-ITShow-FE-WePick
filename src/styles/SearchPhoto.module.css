@@ -23,7 +23,7 @@
   transition: width 0.5s ease;
   cursor: pointer;
   white-space: nowrap;
-  left: -42%;
+  left: -32%;
 }
 
 .placeholderBox.expanded {
@@ -31,9 +31,15 @@
   overflow-x: auto;
   overflow-y: hidden;
   padding-left: 60px;
-  padding-bottom: 10px;
+  margin-bottom: -100px;
   left: unset;
   transform: unset;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.placeholderBox.expanded::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .animatedImage {
