@@ -258,7 +258,7 @@ export default function SearchPageDetail() {
               display: "flex",
               width: "1256px",
               height: "788px",
-              paddingLeft: i === 0 ? "164px" : "200px",
+              paddingLeft: i === 0 ? "320px" : "280px",
               marginRight: i === searchView.length - 1 ? "400px" : 0,
               transition: "opacity 0.3s",
               opacity:
@@ -281,8 +281,8 @@ export default function SearchPageDetail() {
                 icon={
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="18"
+                    width="14"
+                    height="20"
                     viewBox="0 0 18 27"
                     fill="none"
                   >
@@ -299,8 +299,8 @@ export default function SearchPageDetail() {
                 icon={
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="15"
-                    height="14"
+                    width="17"
+                    height="16"
                     viewBox="0 0 26 25"
                     fill="none"
                   >
