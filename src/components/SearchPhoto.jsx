@@ -29,16 +29,20 @@ export default function SearchPhoto({ tag }) {
   };
 
   useEffect(() => {
-    if (!tag) return;
-
-    const tagArray = Array.isArray(tag) ? tag : [tag];
-
     const fetchData = async () => {
-      const query = tagArray
-        .map((t) => `tags=${encodeURIComponent(t)}`)
-        .join("&");
       try {
-        const res = await fetch(`/post/tag?${query}`);
+        let url;
+        if (!tag || (Array.isArray(tag) && tag.length === 0)) {
+          url = "/post"; // 기본: 전체 포스트 요청
+        } else {
+          const tagArray = Array.isArray(tag) ? tag : [tag];
+          const query = tagArray
+            .map((t) => `tags=${encodeURIComponent(t)}`)
+            .join("&");
+          url = `/post/tag?${query}`;
+        }
+
+        const res = await fetch(url);
         const json = await res.json();
         console.log("응답 데이터:", json);
         setImages(json.data);
