@@ -15,9 +15,9 @@ import styles from '../styles/CreatePostPage.module.css'
 import InputWrapper from '../components/InputWrapper';
 // import styles from '../styles/CommInput.module.css'
 
-const API_BASE_URL = 'http://localhost:3000';
+// const API_BASE_URL = 'http://localhost:3000';
 const EXISTING_USER_ID = "684cfa6c0811356c21e5c21c";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const CreatePostPage = () => {
 
@@ -194,7 +194,7 @@ const CreatePostPage = () => {
                 memo: formData.memo || '',
                 tags: formData.tags, // 이미 배열이어야 함
             };
-
+            // console.log(req.body.tags);
             console.log('게시물 저장 시작...', postData);
 
             // 4. 게시물 저장
