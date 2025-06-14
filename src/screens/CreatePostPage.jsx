@@ -202,7 +202,7 @@ const CreatePostPage = () => {
 
             console.log('게시물 저장 성공:', result);
             alert('게시물이 성공적으로 업로드되었습니다!');
-
+            navigate('/search');
             // 성공 시 폼 초기화
             resetForm();
 
@@ -316,7 +316,7 @@ const CreatePostPage = () => {
                     <div className={styles.uploadButtonContainer}>
                         <button
                             className={styles.uploadButton}
-                            onClick={handleUploadToSearch}
+                            onClick={handleUpload}
                             disabled={isLoading || !formData.image}
                         >
                             {isLoading ? '업로드 중...' : '게시물 업로드'}
