@@ -45,7 +45,7 @@
 .animatedImage {
   position: absolute;
   width: 280px; /* 234px → 280px */
-  height: 750px; /* 650px → 750px */
+  height: 963px; /* 650px → 750px */
   overflow: hidden;
   background: #d5d5d5;
   cursor: pointer;
@@ -54,7 +54,7 @@
 
 .stackImage {
   width: 280px; /* 234px → 280px */
-  height: 860px; /* 768px → 860px */
+  height: 963px;
   object-fit: cover;
   display: block;
 }
@@ -127,7 +127,7 @@
   font-family: "Pretendard";
   font-size: 25px; /* 21px → 25px */
   line-height: 1.6;
-  margin-top: 350px; /* 300px → 350px */
+  margin-top: 270px; /* 300px → 350px */
 }
 
 .datePlace {
