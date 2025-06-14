@@ -6,24 +6,24 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px; /* 8px → 10px */
 }
 
 .label {
   color: #555;
-  font-size: 17px;
+  font-size: 20px; /* 17px → 20px */
   font-weight: 500;
-  margin-bottom: 5px;
+  margin-bottom: 8px; /* 5px → 8px */
 }
 
 .inputBox {
   display: flex;
   align-items: center;
   border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 13px;
-  width: 700px;
-  height: 50px;
+  border-radius: 8px; /* 6px → 8px */
+  padding: 16px; /* 13px → 16px */
+  width: 840px; /* 700px → 840px */
+  height: 60px; /* 50px → 60px */
   box-sizing: border-box;
 }
 
@@ -33,24 +33,24 @@
 
 .icon {
   margin-left: auto;
-  font-size: 18px;
+  font-size: 22px; /* 18px → 22px */
   opacity: 0.6;
 }
 
 .memoBox {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px; /* 8px → 10px */
 }
 
 .textarea {
   width: auto;
-  height: 250px;
-  padding: 16px;
+  height: 300px; /* 250px → 300px */
+  padding: 20px; /* 16px → 20px */
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px; /* 6px → 8px */
   resize: none;
-  font-size: 14px;
+  font-size: 17px; /* 14px → 17px */
   line-height: 1.5;
   color: #555;
   background-color: #fff;
@@ -62,9 +62,9 @@
 .value {
   color: #555;
   font-family: "Pretendard";
-  font-size: 15px;
+  font-size: 18px; /* 15px → 18px */
   font-style: normal;
   font-weight: 500;
-  line-height: 28px;
+  line-height: 32px; /* 28px → 32px */
   letter-spacing: 0.6px;
 }

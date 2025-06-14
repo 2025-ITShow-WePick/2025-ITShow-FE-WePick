@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
 import styles from "../styles/SearchPageDetail.module.css";
-import searchView from "../data/searchView.json";
 import Logo from "../components/Logo";
 import FieldBox from "../components/FieldBox";
 import MemoBox from "../components/MemoBox";
@@ -10,7 +9,12 @@ export default function SearchPageDetail() {
   const containerRefs = useRef([]);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const idParam = searchParams.get("id");
+  const indexParam = searchParams.get("index");
+
+  // API에서 가져온 게시물 데이터
+  const [searchView, setSearchView] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // 터치패드 제스처를 위한 상태
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
@@ -18,14 +22,73 @@ export default function SearchPageDetail() {
   const [lastWheelTime, setLastWheelTime] = useState(0);
   const [lastKeyTime, setLastKeyTime] = useState(0);
 
-  // 새로고침 감지 (실제 새로고침만 감지하도록 수정)
+  // 날짜 포맷팅 함수 (올바른 위치)
+  const formatDate = (dateString) => {
+    if (!dateString) return "날짜 정보 없음";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}.${month}.${day}`;
+  };
+
+  // API에서 게시물 데이터 가져오기 (올바른 위치)
   useEffect(() => {
-    // 실제 새로고침인지 확인 (referrer가 같은 도메인이면 일반 네비게이션)
+    const fetchPostData = async () => {
+      try {
+        setLoading(true);
+        console.log("API 호출 시작...");
+
+        const response = await fetch("/post");
+        console.log("API 응답 상태:", response.status);
+
+        if (!response.ok) {
+          throw new Error("게시물을 불러올 수 없습니다.");
+        }
+
+        const responseData = await response.json();
+        console.log("API 응답 데이터:", responseData);
+
+        // API 응답 구조에 따라 데이터 처리
+        let postsData;
+        if (Array.isArray(responseData.data)) {
+          postsData = responseData.data; // 배열인 경우
+          console.log("배열 데이터:", postsData);
+        } else if (responseData.data) {
+          postsData = [responseData.data]; // 객체인 경우 배열로 감싸기
+          console.log("객체를 배열로 변환:", postsData);
+        } else {
+          postsData = []; // 데이터 없음
+          console.log("데이터 없음");
+        }
+
+        const formattedPosts = postsData.map((post, index) => ({
+          index: index,
+          src: post.imageUrl || "/fallback.jpg",
+          place: post.location || "위치 정보 없음",
+          date: formatDate(post.date),
+          memo: post.memo || "메모 없음",
+        }));
+
+        console.log("포맷된 데이터:", formattedPosts);
+        setSearchView(formattedPosts);
+      } catch (err) {
+        console.error("게시물 데이터 가져오기 실패:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPostData();
+  }, []);
+
+  // 새로고침 감지
+  useEffect(() => {
     const isActualReload = () => {
       if (performance && performance.getEntriesByType) {
         const navEntries = performance.getEntriesByType("navigation");
         if (navEntries.length > 0) {
-          // type이 'reload'이고 referrer가 비어있거나 같은 페이지면 실제 새로고침
           return (
             navEntries[0].type === "reload" &&
             (document.referrer === "" ||
@@ -34,31 +97,30 @@ export default function SearchPageDetail() {
         }
       }
 
-      // 대체 방법: sessionStorage를 사용한 새로고침 감지
       const navigationStart = performance.getEntriesByType("navigation")[0];
       return navigationStart && navigationStart.type === "reload";
     };
 
-    // 실제 새로고침일 때만 id=1로 이동
-    if (isActualReload() && !idParam) {
-      navigate("/searchdetail?id=1", { replace: true });
+    // 실제 새로고침일 때만 첫 번째 게시물로 이동
+    if (isActualReload() && !indexParam && searchView.length > 0) {
+      navigate("/searchdetail?index=0", { replace: true });
     }
-  }, [navigate, idParam]);
+  }, [navigate, indexParam, searchView]);
 
-  // id에 해당하는 인덱스 찾기
-  const getIndexById = (id) =>
-    searchView.findIndex((item) => String(item.id) === String(id));
+  // 현재 인덱스 설정
   const [currentIndex, setCurrentIndex] = useState(() => {
-    const idx = idParam ? getIndexById(idParam) : 0;
-    return idx !== -1 ? idx : 0;
+    const idx = indexParam ? parseInt(indexParam) : 0;
+    return idx >= 0 ? idx : 0;
   });
 
   useEffect(() => {
-    const idx = idParam ? getIndexById(idParam) : 0;
-    if (idx !== -1 && idx !== currentIndex) {
-      setCurrentIndex(idx);
+    if (searchView.length > 0) {
+      const idx = indexParam ? parseInt(indexParam) : 0;
+      if (idx >= 0 && idx < searchView.length && idx !== currentIndex) {
+        setCurrentIndex(idx);
+      }
     }
-  }, [idParam]);
+  }, [indexParam, searchView]);
 
   useEffect(() => {
     const ref = containerRefs.current[currentIndex];
@@ -72,44 +134,46 @@ export default function SearchPageDetail() {
     }
   }, [currentIndex]);
 
-  // 초기 로딩 시 해당 id의 카드로 즉시 이동 (애니메이션 없이)
+  // 초기 로딩 시 해당 인덱스의 카드로 즉시 이동
   useEffect(() => {
-    // DOM이 완전히 렌더링될 때까지 기다림
-    const timer = setTimeout(() => {
-      const ref = containerRefs.current[currentIndex];
-      const container = ref?.parentNode;
-      if (container && ref) {
-        // 즉시 스크롤 (애니메이션 없음)
-        container.scrollTo({
-          left: ref.offsetLeft,
-          top: container.scrollTop,
-          behavior: "auto", // "smooth" 대신 "auto"로 즉시 이동
-        });
-      }
-    }, 100); // DOM 렌더링 대기시간 증가
+    if (searchView.length > 0) {
+      const timer = setTimeout(() => {
+        const ref = containerRefs.current[currentIndex];
+        const container = ref?.parentNode;
+        if (container && ref) {
+          container.scrollTo({
+            left: ref.offsetLeft,
+            top: container.scrollTop,
+            behavior: "auto",
+          });
+        }
+      }, 100);
 
-    return () => clearTimeout(timer);
-  }, [currentIndex]); // currentIndex가 변경될 때마다 실행
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, searchView]);
 
   const handleNext = () => {
+    if (searchView.length === 0) return;
+
     if (currentIndex < searchView.length - 1) {
-      navigate(`/searchdetail?id=${searchView[currentIndex + 1].id}`);
+      navigate(`/searchdetail?index=${currentIndex + 1}`);
     } else {
-      // 마지막 카드에서 누르면 첫 번째 카드로 이동!
-      navigate(`/searchdetail?id=${searchView[0].id}`);
+      navigate(`/searchdetail?index=0`);
     }
   };
 
   const handlePrevious = () => {
+    if (searchView.length === 0) return;
+
     if (currentIndex > 0) {
-      navigate(`/searchdetail?id=${searchView[currentIndex - 1].id}`);
+      navigate(`/searchdetail?index=${currentIndex - 1}`);
     } else {
-      // 첫 번째 카드에서 누르면 마지막 카드로 이동!
-      navigate(`/searchdetail?id=${searchView[searchView.length - 1].id}`);
+      navigate(`/searchdetail?index=${searchView.length - 1}`);
     }
   };
 
-  // 터치패드 제스처 이벤트 핸들러
+  // 터치패드 제스처 이벤트 핸들러들
   const handleTouchStart = (e) => {
     if (e.touches && e.touches.length > 0) {
       setTouchStart({
@@ -128,7 +192,6 @@ export default function SearchPageDetail() {
     const diffX = touchStart.x - currentX;
     const diffY = touchStart.y - currentY;
 
-    // 세로 스크롤이 더 크면 스크롤링으로 판단
     if (Math.abs(diffY) > Math.abs(diffX)) {
       setIsScrolling(true);
     }
@@ -143,14 +206,12 @@ export default function SearchPageDetail() {
 
     const currentX = e.changedTouches[0].clientX;
     const diffX = touchStart.x - currentX;
-    const minSwipeDistance = 80; // 최소 스와이프 거리 증가 (더 큰 제스처 필요)
+    const minSwipeDistance = 80;
 
     if (Math.abs(diffX) > minSwipeDistance) {
       if (diffX > 0) {
-        // 왼쪽으로 스와이프 -> 다음 페이지
         handleNext();
       } else {
-        // 오른쪽으로 스와이프 -> 이전 페이지
         handlePrevious();
       }
     }
@@ -159,37 +220,30 @@ export default function SearchPageDetail() {
     setIsScrolling(false);
   };
 
-  // 마우스 휠 이벤트 핸들러 (터치패드 스크롤) - 쓰로틀링 적용
   const handleWheel = (e) => {
     const now = Date.now();
-    const wheelCooldown = 800; // 800ms 쿨다운 (조절 가능)
+    const wheelCooldown = 800;
 
-    // 쿨다운 시간이 지나지 않았으면 무시
     if (now - lastWheelTime < wheelCooldown) {
       return;
     }
 
-    // 수평 스크롤 감지
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 15) {
       e.preventDefault();
       setLastWheelTime(now);
 
       if (e.deltaX > 0) {
-        // 오른쪽으로 스크롤 -> 다음 페이지
         handleNext();
       } else {
-        // 왼쪽으로 스크롤 -> 이전 페이지
         handlePrevious();
       }
     }
   };
 
-  // 키보드 이벤트 핸들러 (화살표 키 지원) - 쓰로틀링 적용
   const handleKeyDown = (e) => {
     const now = Date.now();
-    const keyCooldown = 300; // 300ms 쿨다운 (조절 가능)
+    const keyCooldown = 300;
 
-    // 쿨다운 시간이 지나지 않았으면 무시
     if (now - lastKeyTime < keyCooldown) {
       return;
     }
@@ -207,45 +261,110 @@ export default function SearchPageDetail() {
 
   // 이벤트 리스너 등록
   useEffect(() => {
-    // 초기 로딩 시 해당 id의 카드로 즉시 이동하기 위한 지연
-    const timer = setTimeout(() => {
-      const ref = containerRefs.current[currentIndex];
-      const container = ref?.parentNode;
-      if (container && ref) {
-        container.scrollTo({
-          left: ref.offsetLeft,
-          top: container.scrollTop,
-          behavior: "auto", // 즉시 이동
+    if (searchView.length > 0) {
+      const timer = setTimeout(() => {
+        const ref = containerRefs.current[currentIndex];
+        const container = ref?.parentNode;
+        if (container && ref) {
+          container.scrollTo({
+            left: ref.offsetLeft,
+            top: container.scrollTop,
+            behavior: "auto",
+          });
+        }
+      }, 50);
+
+      const container = document.querySelector(`.${styles.content}`);
+      if (container) {
+        container.addEventListener("wheel", handleWheel, { passive: false });
+        container.addEventListener("touchstart", handleTouchStart, {
+          passive: true,
+        });
+        container.addEventListener("touchmove", handleTouchMove, {
+          passive: true,
+        });
+        container.addEventListener("touchend", handleTouchEnd, {
+          passive: true,
         });
       }
-    }, 50); // 50ms 지연으로 DOM이 완전히 렌더링된 후 실행
 
-    const container = document.querySelector(`.${styles.content}`);
-    if (container) {
-      container.addEventListener("wheel", handleWheel, { passive: false });
-      container.addEventListener("touchstart", handleTouchStart, {
-        passive: true,
-      });
-      container.addEventListener("touchmove", handleTouchMove, {
-        passive: true,
-      });
-      container.addEventListener("touchend", handleTouchEnd, { passive: true });
+      document.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        clearTimeout(timer);
+        if (container) {
+          container.removeEventListener("wheel", handleWheel);
+          container.removeEventListener("touchstart", handleTouchStart);
+          container.removeEventListener("touchmove", handleTouchMove);
+          container.removeEventListener("touchend", handleTouchEnd);
+        }
+        document.removeEventListener("keydown", handleKeyDown);
+      };
     }
+  }, [currentIndex, searchView]);
 
-    // 키보드 이벤트는 document에 등록
-    document.addEventListener("keydown", handleKeyDown);
+  // 로딩 상태
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <Logo />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50vh",
+            fontSize: "18px",
+            color: "#666",
+          }}
+        >
+          게시물을 불러오는 중...
+        </div>
+      </div>
+    );
+  }
 
-    return () => {
-      clearTimeout(timer);
-      if (container) {
-        container.removeEventListener("wheel", handleWheel);
-        container.removeEventListener("touchstart", handleTouchStart);
-        container.removeEventListener("touchmove", handleTouchMove);
-        container.removeEventListener("touchend", handleTouchEnd);
-      }
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [currentIndex]); // currentIndex가 변경될 때마다 이벤트 리스너 재등록
+  // 에러 상태
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <Logo />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50vh",
+            fontSize: "18px",
+            color: "#ff6b6b",
+          }}
+        >
+          오류: {error}
+        </div>
+      </div>
+    );
+  }
+
+  // 게시물이 없는 경우
+  if (searchView.length === 0) {
+    return (
+      <div className={styles.container}>
+        <Logo />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50vh",
+            fontSize: "18px",
+            color: "#666",
+          }}
+        >
+          게시물이 없습니다.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -253,12 +372,12 @@ export default function SearchPageDetail() {
       <div className={styles.content}>
         {searchView.map((currentResult, i) => (
           <div
-            key={currentResult.id}
+            key={currentResult.index}
             style={{
               display: "flex",
               width: "1256px",
               height: "788px",
-              paddingLeft: i === 0 ? "164px" : "200px",
+              paddingLeft: i === 0 ? "320px" : "280px",
               marginRight: i === searchView.length - 1 ? "400px" : 0,
               transition: "opacity 0.3s",
               opacity:
@@ -270,8 +389,11 @@ export default function SearchPageDetail() {
             <div className={styles.left}>
               <img
                 src={currentResult.src}
-                alt="포토부스"
+                alt="게시물 이미지"
                 className={styles.photo}
+                onError={(e) => {
+                  e.target.src = "/fallback.jpg";
+                }}
               />
             </div>
             <div className={styles.right}>
@@ -281,8 +403,8 @@ export default function SearchPageDetail() {
                 icon={
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="18"
+                    width="14"
+                    height="20"
                     viewBox="0 0 18 27"
                     fill="none"
                   >
@@ -299,8 +421,8 @@ export default function SearchPageDetail() {
                 icon={
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="15"
-                    height="14"
+                    width="17"
+                    height="16"
                     viewBox="0 0 26 25"
                     fill="none"
                   >

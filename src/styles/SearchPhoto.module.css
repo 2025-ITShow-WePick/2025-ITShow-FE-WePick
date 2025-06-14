@@ -17,21 +17,21 @@
 
 .placeholderBox {
   position: relative;
-  width: 234px;
-  height: 768px;
+  width: 280px; /* 234px → 280px */
+  height: 860px; /* 768px → 860px */
   overflow: visible;
   transition: width 0.5s ease;
   cursor: pointer;
   white-space: nowrap;
-  left: -32%;
+  left: -39%;
 }
 
 .placeholderBox.expanded {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-left: 60px;
-  margin-bottom: -100px;
+  padding-left: 80px; /* 60px → 80px */
+  margin-bottom: -120px; /* -100px → -120px */
   left: unset;
   transform: unset;
   scrollbar-width: none; /* Firefox */
@@ -44,8 +44,8 @@
 
 .animatedImage {
   position: absolute;
-  width: 234px;
-  height: 650px;
+  width: 280px; /* 234px → 280px */
+  height: 750px; /* 650px → 750px */
   overflow: hidden;
   background: #d5d5d5;
   cursor: pointer;
@@ -53,8 +53,8 @@
 }
 
 .stackImage {
-  width: 234px;
-  height: 768px;
+  width: 280px; /* 234px → 280px */
+  height: 860px; /* 768px → 860px */
   object-fit: cover;
   display: block;
 }
@@ -67,9 +67,9 @@
 
 .placeholderClick {
   position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translateX(580px);
+  top: 44%;
+  left: 70%;
+  transform: translateX(650px); /* 580px → 650px */
   z-index: 5;
   color: #898989;
   user-select: none;
@@ -80,11 +80,17 @@
   transition: opacity 0.4s ease;
 }
 
+.placeholderClick .clickIcon svg {
+  width: 36px; /* 30px → 36px */
+  height: 40px; /* 34px → 40px */
+}
+
 .placeholderClick .clickText {
   color: #898989;
-  font-size: 15px;
+  font-size: 18px; /* 15px → 18px */
   font-family: "Pretendard", sans-serif;
   font-weight: 400;
+  margin-top: 8px; /* 간격 추가 */
 }
 
 .placeholderClick.hide {
@@ -94,7 +100,7 @@
 }
 
 .animatedImage:last-child {
-  padding-right: 60px;
+  padding-right: 80px; /* 60px → 80px */
   background-color: transparent;
 }
 
@@ -119,20 +125,22 @@
 
 .overlayText {
   font-family: "Pretendard";
-  font-size: 21px;
+  font-size: 25px; /* 21px → 25px */
   line-height: 1.6;
-  margin-top: 300px;
+  margin-top: 350px; /* 300px → 350px */
 }
 
 .datePlace {
-  margin-bottom: 200px;
+  margin-bottom: 240px; /* 200px → 240px */
+  font-size: 22px; /* 기본값에서 증가 */
 }
 
 .more {
-  margin-left: 100px;
-  font-size: 16px;
+  margin-left: 120px; /* 100px → 120px */
+  font-size: 19px; /* 16px → 19px */
   font-weight: 400;
   display: flex;
+  align-items: center; /* 정렬 개선 */
 }
 
 .imageWrapper:hover .overlay {
@@ -141,6 +149,7 @@
 
 .moreIcon {
   display: inline-block;
-  margin-top: 5px;
-  margin-left: 5px;
+  margin-top: 2px; /* 5px → 2px (정렬 개선) */
+  margin-left: 8px; /* 5px → 8px */
+  font-size: 20px; /* 아이콘 크기 증가 */
 }

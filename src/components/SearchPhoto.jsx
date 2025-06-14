@@ -1,18 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/SearchPhoto.module.css";
-import tagImages from "../data/tagImages.json";
 import { IoIosArrowForward } from "react-icons/io";
 
-const IMAGE_WIDTH = 234;
-const IMAGE_GAP = 25;
+const IMAGE_WIDTH = 280; // 234 → 280
+const IMAGE_GAP = 30; // 25 → 30
 
 const stackedTransforms = [
-  "rotate(-7.253deg) translate(110px, 120px)",
-  "rotate(7.744deg) translate(375px, 165px)",
-  "rotate(-7.573deg) translate(590px, 105px)",
-  "rotate(2.373deg) translate(850px, 140px)",
-  "rotate(19.09deg) translate(1050px, -310px)",
+  "rotate(-7.253deg) translate(130px, 140px)", // 110px, 120px → 130px, 140px
+  "rotate(7.744deg) translate(445px, 195px)", // 375px, 165px → 445px, 195px
+  "rotate(-7.573deg) translate(700px, 125px)", // 590px, 105px → 700px, 125px
+  "rotate(2.373deg) translate(1000px, 165px)", // 850px, 140px → 1000px, 165px
+  "rotate(19.09deg) translate(1240px, -370px)", // 1050px, -310px → 1240px, -370px
 ];
 
 function getStackedTransform(n) {
@@ -21,14 +20,52 @@ function getStackedTransform(n) {
 
 export default function SearchPhoto({ tag }) {
   const [clicked, setClicked] = useState(false);
+  const [images, setImages] = useState([]);
   const scrollRef = useRef(null);
 
-  const images = tag ? tagImages[tag] || [] : Object.values(tagImages).flat();
+  const navigate = useNavigate();
 
-  const stackedImages = images.slice(-5);
-  while (stackedImages.length < 5) {
-    stackedImages.push(null); // 왼쪽부터 채우기
-  }
+  const handleMoveClick = (index) => {
+    navigate(`/searchdetail?index=${index}`);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let url;
+        if (!tag || (Array.isArray(tag) && tag.length === 0)) {
+          url = "/post"; // 기본: 전체 포스트 요청
+        } else {
+          const tagArray = Array.isArray(tag) ? tag : [tag];
+          const query = tagArray
+            .map((t) => `tags=${encodeURIComponent(t)}`)
+            .join("&");
+          url = `/post/tag?${query}`;
+        }
+
+        const res = await fetch(url);
+        const json = await res.json();
+        console.log("응답 데이터:", json);
+
+        // 🔧 여기서 데이터 매핑 처리
+        const postsData = json.data || [];
+        const formattedImages = postsData.map((post, index) => ({
+          index: index, // 배열 인덱스를 ID로 사용
+          imageUrl: post.imageUrl,
+          date: post.date,
+          location: post.location,
+          memo: post.memo,
+        }));
+
+        setImages(formattedImages); // 🔧 매핑된 데이터로 설정
+      } catch (err) {
+        console.error("API 요청 실패:", err);
+        setImages([]); // 🔧 에러 시 빈 배열
+      }
+    };
+
+    fetchData();
+  }, [tag]);
 
   useEffect(() => {
     if (clicked && scrollRef.current) {
@@ -38,9 +75,20 @@ export default function SearchPhoto({ tag }) {
 
   const handleToggle = () => setClicked((prev) => !prev);
 
-  const navigate = useNavigate();
-  const handleMoveClick = () => {
-    navigate("/searchdetail");
+  const stackedImages = [...images].slice(-5);
+  while (stackedImages.length < 5) {
+    stackedImages.push(null); // 왼쪽부터 채우기
+  }
+
+  const pormatDate = (isoDate) => {
+    if (!isoDate) return "날짜 정보 없음"; // 🔧 안전성 추가
+
+    const date = new Date(isoDate);
+    const formatted = `${date.getFullYear()}.${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")}`;
+
+    return formatted;
   };
 
   return (
@@ -51,10 +99,9 @@ export default function SearchPhoto({ tag }) {
         ref={scrollRef}
       >
         {(clicked ? images : stackedImages).map((img, n) => {
-          const total = clicked ? images.length : stackedImages.length;
           const transformStyle = clicked
             ? `translateX(${n * (IMAGE_WIDTH + IMAGE_GAP)}px) translateY(${
-                n % 2 === 0 ? -40 : 40
+                n % 2 === 0 ? -50 : 50
               }px)`
             : getStackedTransform(n);
 
@@ -70,19 +117,21 @@ export default function SearchPhoto({ tag }) {
               {img ? (
                 <div className={styles.imageWrapper}>
                   <img
-                    src={img.src}
-                    alt={`추천 이미지 ${n + 1}`}
+                    src={img.imageUrl || "/fallback.jpg"}
                     className={styles.stackImage}
+                    alt="게시물 이미지"
                   />
                   {clicked && (
                     <div className={styles.overlay}>
                       <div className={styles.overlayText}>
                         <div className={styles.datePlace}>
-                          <div>{img.date}</div>
-                          <div>{img.place}</div>
+                          <div>{pormatDate(img.date)}</div>
+                          <div>{img.location}</div>
                         </div>
                         <div className={styles.more}>
-                          <span onClick={handleMoveClick}>더보기{"  "}</span>
+                          <span onClick={() => handleMoveClick(img.index)}>
+                            더보기{" "}
+                          </span>
                           <IoIosArrowForward className={styles.moreIcon} />
                         </div>
                       </div>
@@ -99,7 +148,6 @@ export default function SearchPhoto({ tag }) {
         {!clicked && (
           <div className={styles.placeholderClick}>
             <div className={styles.clickIcon}>
-              {/* 아이콘 SVG */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="30"
