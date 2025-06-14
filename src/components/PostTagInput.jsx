@@ -5,11 +5,11 @@ import Dropdown from './Dropdown';
 import TagSelector from './TagSelector';
 
 const TAGS = [
-    { value: '혼자', label: '혼자', color: '#006BFF' },
-    { value: '연인와 함께', label: '연인와 함께', color: '#FF77B7' },
+    { value: '혼자서', label: '혼자', color: '#006BFF' },
+    { value: '연인과 함께', label: '연인과 함께', color: '#FF77B7' },
     { value: '친구와 함께', label: '친구와 함께', color: '#F95454' },
     { value: '가족과 함께', label: '가족과 함께', color: '#FFE31A' },
-    { value: '동료와 함께', label: '동료와 함께', color: '#007F73' },
+    // { value: '동료와 함께', label: '동료와 함께', color: '#007F73' },
 ];
 
 const PostTagInput = ({ tagValue, onChange }) => {
