@@ -377,8 +377,8 @@ export default function SearchPageDetail() {
               display: "flex",
               width: "1256px",
               height: "788px",
-              paddingLeft: i === 0 ? "320px" : "280px",
-              marginRight: i === searchView.length - 1 ? "400px" : 0,
+              paddingLeft: i === 0 ? "320px" : "390px",
+              marginRight: i === searchView.length - 1 ? "100vw" : 0,
               transition: "opacity 0.3s",
               opacity:
                 i === currentIndex ? 1 : i === currentIndex + 1 ? 0.6 : 1,
