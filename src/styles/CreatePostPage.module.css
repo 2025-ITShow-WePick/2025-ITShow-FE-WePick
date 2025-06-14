@@ -3,29 +3,61 @@
     src: url("../assets/fonts/Pretendard.ttf") format("truetype");
 }
 
+:root {
+    --GRAY-00: #555;
+    /* --GRAY-01: #afafaf; */
+    --GRAY-01: #afafaf;
+    --GRAY-02: #BABABA;
+}
+
+body {
+    /* border: 1px solid #e0e0e0; */
+    font-family: "Pretendard", sans-serif;
+}
+
 input,
 textarea,
-select {
-    border: 1px solid #ccc;
+select,
+.locationInputField {
+    border: 1px solid var(--GRAY-01, #747474);
     border-radius: 6px;
-    padding: 13px;
+    padding: 20px;
     width: 700px;
-    height: 50px;
+    height: 60px;
     box-sizing: border-box;
 }
 
-.postTitle {
+.locationInputField.dropdownExpanded {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    /* 가운데 제목 정렬 */
     align-items: center;
-    justify-self: center;
+    /* 세로 중앙 정렬 */
+    height: 64px;
+    /* 높이 명확히 지정 (중요) */
+    padding: 0 16px;
+}
+
+.postTitle {
+    /* align-items: center; */
+    /* text-align: center; */
+    /* justify-self: center; */
     margin-top: 0;
 }
 
 .inputContainer {
     padding: 234px;
-    padding-top: 10px;
+    padding-top: 20px;
     display: flex;
     flex-direction: row;
     gap: 38px;
+    justify-content: center;
 }
 
 .inputWithIcon {
@@ -38,7 +70,7 @@ select {
     display: flex;
     flex-direction: column;
     padding-top: 30px;
-    gap: 10px;
+    gap: 20px;
 }
 
 /* InputWrapper */
@@ -47,28 +79,70 @@ select {
     flex-shrink: 0;
     color: var(--GRAY-00, #555);
     font-family: Pretendard;
-    font-size: 15px;
+    font-size: 20px;
     font-style: normal;
     font-weight: 500;
     letter-spacing: 0.72px;
     margin-bottom: 10px;
 }
 
-.defaultInput {
+/* .placeName {
+    font-family: Pretendard;
+    font-weight: 500;
+} */
+
+.defaultInput::placeholder {
+    color: #bdbdbd;
+    font-family: Pretendard;
+    font-weight: 100;
+}
+
+.inputWithIcon.defaultInput,
+.placeName {
+    color: var(--GRAY-00, #555);
+}
+
+h3.placeName {
+    padding: 5px 0 5px 0;
+    margin: 0;
+    font-size: 16px;
+}
+
+.defaultInput,
+.selectedText {
     width: 100%;
     padding-right: 2.5rem;
     box-sizing: border-box;
-    color: var(--GRAY-02, #BABABA);
+    color: var(--GRAY-00, #555);
     font-family: Pretendard;
     font-style: normal;
-    line-height: 28px;
+    font-size: 17px;
     letter-spacing: 0.6px;
 }
 
+.defaultInput,
+.dateInputCustom,
+.select:focus,
+.locationInputField {
+    outline: none;
+    box-shadow: none;
+    /* border: 1px solid #ccc; */
+    border: 1px solid var(--GRAY-01, #747474);
+}
 
-.inputIcon {
+.placeAddress {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inputIcon,
+.expandIcon {
     position: absolute;
-    right: 0.8rem;
+    right: 1.2rem;
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
@@ -76,33 +150,136 @@ select {
     align-items: center;
 }
 
-.dateInputCustom {
+.dateInputCustom,
+.locationInputField {
     padding-right: 2.5rem;
     box-sizing: border-box;
-    color: var(--GRAY-02, #808080);
+    color: #bdbdbd;
     font-family: Pretendard;
     font-style: normal;
     line-height: 28px;
     font-weight: 100;
+    font-size: 17px;
     letter-spacing: 0.6px;
 }
 
 /* PostImageInput */
 /* 전체 */
+/* PostImageInput.module.css에 추가할 스타일 */
+
+.imagePreviewContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.imageWrapper {
+    position: relative;
+    max-width: 170px;
+    width: 170px;
+    height: 583px;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.imageWrapper:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.previewImage {
+    width: 100%;
+    height: 100%;
+    /* height: auto; */
+    object-fit: cover;
+
+    object-position: center;
+    display: block;
+}
+
+.imageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.imageWrapper:hover .imageOverlay {
+    opacity: 1;
+}
+
+.overlayButton {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.overlayButton:hover {
+    transform: scale(1.05);
+}
+
+.changeButton {
+    background: white;
+    color: #333;
+}
+
+.changeButton:hover {
+    background: #000000;
+    color: #fff;
+}
+
+.removeButton {
+    background: white;
+    color: #333;
+}
+
+.removeButton:hover {
+    background: #000000;
+    color: #fff;
+}
+
 .imageInputContainer {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding: 0;
     margin: 0;
+    margin-top: 30px;
+}
+
+.imageInputContainer>p {
+    font-size: 20px;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 10px;
+    color: var(--GRAY-00, #555);
+    font-family: Pretendard;
 }
 
 /* 업로드 */
 .uploadBox {
     display: flex;
     flex-direction: column;
-    width: 350px;
-    height: 400px;
+    width: 450px;
+    height: 487px;
     padding: 30px 0;
     justify-content: center;
     align-items: center;
@@ -112,11 +289,14 @@ select {
 }
 
 /* + & 사진 업로드 */
+
 .uploadLabel,
 .uploadText {
     display: flex;
     align-items: center;
     flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
 }
 
 /* 사진 업로드 */
@@ -128,9 +308,10 @@ select {
     font-style: normal;
     font-weight: 300;
     line-height: 28px;
+    cursor: pointer;
 }
 
-/* 사진 찍기 텍스트트 */
+/* 사진 찍기 텍스트 */
 .cameraText {
     color: var(--GRAY-02, #BABABA);
     text-align: center;
@@ -140,36 +321,591 @@ select {
     font-weight: 200;
 }
 
+
 /* PostMemoInput */
-.memoInput {
-    height: 190px;
+textarea.defaultInput {
+    resize: none;
+    height: 200px;
+}
+
+/* locationInput */
+.locationInputWrapper {
+    margin: 16px 0;
+}
+
+.locationInputContainer {
+    position: relative;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    /* border: 1px solid #e0e0e0; */
+    border-radius: 8px;
+    /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
+    z-index: 1000;
+}
+
+.selectedPlaceInfo {
+    padding: 16px;
+    display: flex;
+}
+
+.expandIcon.expanded svg {
+    transform: rotate(180deg);
+}
+
+.expandIcon {
+
+    transition: transform 0.2s ease;
+}
+
+.dropdownActions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.removeLocationButton {
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.inputLabel {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.locationInputField {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.locationIcon {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+
+.locationIconAfter {
+    right: 1.2rem;
+    top: 50%;
+    /* transform: translateY(-50%); */
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+
+.expandIcon {
+    margin-left: 8px;
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%) rotate(0deg);
+    transform-origin: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.expandIcon svg {
+    transform-origin: center center;
+}
+
+.dropdown {
+    border: 1px solid var(--GRAY-01, #747474);
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: none;
+}
+
+.placeImageContainer {
+    margin-right: 12px;
+}
+
+.placeThumbnail {
+    width: 48px;
+    height: 48px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.placeDetails {
+    flex: 1;
+}
+
+.selectedLocationText {
+    margin: 10px;
+}
+
+
+.placeAddress {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 8px 0;
+}
+
+.viewMapButton {
+    background: #ffffff;
+    color: #afafaf;
+    border: 1px solid #afafaf;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 12px;
+    text-align: center;
+
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.viewMapButton:hover {
+    /* background: #3367d6; */
+    background: #000000;
+    color: #afafaf;
+}
+
+.searchModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.searchModal {
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.searchHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.searchHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #666;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+}
+
+.closeButton {
+    background: #f0f0f0;
+}
+
+.searchInputContainer {
+    display: flex;
+    padding: 16px;
+    gap: 8px;
+    border-bottom: 1px solid #e0e0e0;
 
 }
 
-.select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='-9 0 37 27' fill='none'><path d='M5.86035 7.24935C5.86035 7.61767 6.00667 7.97091 6.26711 8.23135C6.52755 8.49179 6.88079 8.6381 7.24911 8.6381C7.61743 8.6381 7.97066 8.49179 8.2311 8.23135C8.49155 7.97091 8.63786 7.61767 8.63786 7.24935C8.63786 6.88103 8.49155 6.52779 8.2311 6.26735C7.97066 6.00691 7.61743 5.8606 7.24911 5.8606C6.88079 5.8606 6.52755 6.00691 6.26711 6.26735C6.00667 6.52779 5.86035 6.88103 5.86035 7.24935Z' stroke='%23939393' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><path d='M1 5.16626V12.3489C1.00016 13.0855 1.29289 13.7918 1.81381 14.3126L12.5211 25.0199C13.1488 25.6474 14 26 14.8875 26C15.7751 26 16.6263 25.6474 17.254 25.0199L25.0199 17.254C25.6474 16.6263 26 15.7751 26 14.8875C26 14 25.6474 13.1488 25.0199 12.5211L14.3126 1.81381C13.7918 1.29289 13.0855 1.00016 12.3489 1H5.16626C4.0613 1 3.0016 1.43894 2.22027 2.22027C1.43894 3.0016 1 4.0613 1 5.16626Z' stroke='%23939393' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 0.75rem center/1.5rem auto;
-    padding-right: 2.5rem;
-    color: var(--GRAY-02, #808080);
-    font-family: Pretendard;
-    font-style: normal;
-    letter-spacing: 0.6px;
+.searchInput {
+    flex: 1;
+    padding: 12px 16px;
 }
 
-/* IE에서 기본 화살표 숨기기 */
-.select::-ms-expand {
+.searchInput:focus {
+    outline: none;
+}
+
+.searchButton {
+    padding: 12px 20px;
+    background: #000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+}
+
+.searchButton:hover:not(:disabled) {
+    background: #242424;
+}
+
+.searchButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dropdownWrapper {
+    position: relative;
+}
+
+.dropdownTrigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dropdownIcon {
+    display: flex;
+    align-items: center;
+}
+
+.mapDropdown {
+    margin-top: 8px;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.searchResults {
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.resultIcon {
+    margin-right: 8px;
+}
+
+.resultInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.resultName {
+    font-weight: bold;
+}
+
+.resultAddress {
+    font-size: 12px;
+    color: #666;
+}
+
+.resultCategory {
+    font-size: 12px;
+    color: #999;
+}
+
+.noResults {
+    padding: 12px;
+    color: #666;
+    text-align: center;
+}
+
+
+.resultsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.resultItem {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.resultItem:hover {
+    background: #f8f9fa;
+    /* background: #f5f5f5; */
+}
+
+.resultItem:last-child {
+    border-bottom: none;
+}
+
+.resultIcon {
+    font-size: 18px;
+    margin-right: 12px;
+}
+
+.resultInfo {
+    flex: 1;
+}
+
+.resultName {
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.resultAddress {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.resultCategory {
+    font-size: 12px;
+    color: #999;
+}
+
+.noResults {
+    padding: 40px 20px;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
+
+.mapModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+}
+
+.mapModal {
+    width: 90%;
+    max-width: 600px;
+    height: 70vh;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.mapHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    background: white;
+}
+
+.mapHeader h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.mapContainer {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .searchModal {
+        width: 95%;
+        margin: 0 auto;
+    }
+
+    .mapModal {
+        width: 95%;
+        height: 80vh;
+    }
+}
+
+/* tag */
+.tagButtonGroup {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.tagButton .selected {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.dropdownWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.dropdownInput {
+    border: 1px solid var(--GRAY-01, #747474);
+    /* border: 1px solid #e0e0e0; */
+    color: #bdbdbd;
+    border-radius: 8px;
+    background: #fff;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    cursor: pointer;
+    justify-content: space-between;
+}
+
+.dropdownInputOpen {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+}
+
+.dropdownInput::-ms-expand {
     display: none;
 }
 
-/* 업로드 버튼 */
-.buttonContainer{
+.tagPlaceholder {
+    color: #bdbdbd;
+}
+
+.dropdownIcon {
+    margin-left: 8px;
     display: flex;
+    align-items: center;
+    appearance: none;
+}
+
+.dropdownMenu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 10;
+    background: #fff;
+    /* border: 1px solid #afafaf; */
+    border: 1px solid #d0d0d0;
+    border-radius: 0 0 8px 8px;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+
+}
+
+.tagButton {
+    border: none;
+    border-radius: 7px;
+    padding: 12px 25px;
+    font-size: 15px;
+    font-family: Pretendard;
+    font-weight: 100;
+    cursor: pointer;
+    transition: box-shadow 0.2s, opacity 0.2s;
+    outline: none;
+}
+
+/* 업로드 버튼 */
+
+
+/* 이미지 업로드 모달 */
+
+.actionModalOverlay,
+.cameraModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.actionModal,
+.cameraModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    width: 400px;
+    max-width: 90%;
+    z-index: 1000;
+    font-family: Arial, sans-serif;
+}
+
+.actionButton {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+    color: #333;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+
+/* .button {} */
+
+.uploadButtonContainer {
+    display: flex;
+    gap: 12px;
     justify-content: flex-end;
     margin-top: 20px;
 }
-.button {
+
+.uploadButton {
     display: flex;
     width: 200px;
     height: 50px;
@@ -177,11 +913,46 @@ select {
     align-items: center;
     gap: 8px;
     border-radius: 10px;
+    border: none;
+    color: #fff;
     background: var(--BLACK-00, #000);
+    cursor: pointer;
+}
 
-    color: aliceblue;
-    font-family: Pretendard;
-    font-size: 15px;
-    font-style: normal;
-    letter-spacing: 0.6px;
+.uploadButton:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.cancelButton {
+    all: unset;
+    position: absolute;
+    top: 30%;
+    right: 15%;
+    transform: translateY(-50%);
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+
+.debugInfo {
+    margin: 40px 20px 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.debugInfo pre {
+    background: white;
+    padding: 16px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 12px;
 }

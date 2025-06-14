@@ -3,6 +3,7 @@ import InputWrapper from './InputWrapper';
 import styles from '../styles/CreatePostPage.module.css'
 import DatePicker from 'react-datepicker';
 import dayjs from 'dayjs';
+import axios from 'axios';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const CustomInput = forwardRef(({ value, onClick, placeholder }, ref) => (
@@ -20,8 +21,8 @@ const CustomInput = forwardRef(({ value, onClick, placeholder }, ref) => (
       <svg
         className={styles.selectIcon}
         xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
+        width="22"
+        height="20"
         viewBox="0 0 26 25"
         fill="none"
       >
@@ -39,21 +40,18 @@ const PostDateInput = ({ value, onChange }) => {
 
   const handleChange = (date) => {
     setSelectedDate(date);
-    if (date) {
-      onChange(dayjs(date).format('YYYY/MM/DD'));
-    } else {
-      onChange('');
-    }
+    const formattedDate = date ? dayjs(date).format('YYYY/MM/DD') : '';
+    onChange(formattedDate); // 부모에 전달만!
   };
 
   return (
     <InputWrapper label="날짜">
-        <DatePicker
-          selected={selectedDate}
-          onChange={handleChange}
-          customInput={<CustomInput placeholder="YYYY/MM/DD" value={value} />}
-          dateFormat="yyyy/MM/dd"
-        />
+      <DatePicker
+        selected={selectedDate}
+        onChange={handleChange}
+        customInput={<CustomInput placeholder="YYYY/MM/DD" value={value} />}
+        dateFormat="yyyy/MM/dd"
+      />
     </InputWrapper>
 
   );

@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -90,3 +92,4 @@ $RECYCLE.BIN/
 
 # Optional: System Trash (macOS/Linux)
 .Trashes
+.env
