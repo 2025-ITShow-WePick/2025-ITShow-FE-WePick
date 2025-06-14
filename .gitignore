@@ -92,3 +92,4 @@ $RECYCLE.BIN/
 
 # Optional: System Trash (macOS/Linux)
 .Trashes
+.env
