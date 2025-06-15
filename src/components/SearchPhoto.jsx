@@ -25,8 +25,9 @@ export default function SearchPhoto({ tag }) {
 
   const navigate = useNavigate();
 
-  const handleMoveClick = (index) => {
-    navigate(`/searchdetail?index=${index}`);
+  const handleMoveClick = (postId) => {
+    // 🔥 게시물 ID를 쿼리 파라미터로 전달
+    navigate(`/searchdetail?id=${postId}`);
   };
 
   useEffect(() => {
@@ -50,7 +51,8 @@ export default function SearchPhoto({ tag }) {
         // 🔧 여기서 데이터 매핑 처리
         const postsData = json.data || [];
         const formattedImages = postsData.map((post, index) => ({
-          index: index, // 배열 인덱스를 ID로 사용
+          id: post.id, // 🔥 원본 게시물의 고유 ID 저장
+          displayIndex: index, // 현재 필터링된 배열에서의 인덱스 (UI용)
           imageUrl: post.imageUrl,
           date: post.date,
           location: post.location,
@@ -107,7 +109,7 @@ export default function SearchPhoto({ tag }) {
 
           return (
             <div
-              key={n}
+              key={img ? img.id : n} // 🔥 게시물 ID를 key로 사용
               className={styles.animatedImage}
               style={{
                 transform: transformStyle,
@@ -129,7 +131,7 @@ export default function SearchPhoto({ tag }) {
                           <div>{img.location}</div>
                         </div>
                         <div className={styles.more}>
-                          <span onClick={() => handleMoveClick(img.index)}>
+                          <span onClick={() => handleMoveClick(img.id)}>
                             더보기{" "}
                           </span>
                           <IoIosArrowForward className={styles.moreIcon} />

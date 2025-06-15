@@ -10,6 +10,7 @@ export default function SearchPageDetail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const indexParam = searchParams.get("index");
+  const idParam = searchParams.get("id"); // 🔥 ID 파라미터 추가
 
   // API에서 가져온 게시물 데이터
   const [searchView, setSearchView] = useState([]);
@@ -22,7 +23,7 @@ export default function SearchPageDetail() {
   const [lastWheelTime, setLastWheelTime] = useState(0);
   const [lastKeyTime, setLastKeyTime] = useState(0);
 
-  // 날짜 포맷팅 함수 (올바른 위치)
+  // 날짜 포맷팅 함수
   const formatDate = (dateString) => {
     if (!dateString) return "날짜 정보 없음";
     const date = new Date(dateString);
@@ -32,7 +33,7 @@ export default function SearchPageDetail() {
     return `${year}.${month}.${day}`;
   };
 
-  // API에서 게시물 데이터 가져오기 (올바른 위치)
+  // API에서 게시물 데이터 가져오기
   useEffect(() => {
     const fetchPostData = async () => {
       try {
@@ -64,6 +65,7 @@ export default function SearchPageDetail() {
 
         const formattedPosts = postsData.map((post, index) => ({
           index: index,
+          id: post.id, // 🔥 게시물 고유 ID 저장
           src: post.imageUrl || "/fallback.jpg",
           place: post.location || "위치 정보 없음",
           date: formatDate(post.date),
@@ -102,25 +104,41 @@ export default function SearchPageDetail() {
     };
 
     // 실제 새로고침일 때만 첫 번째 게시물로 이동
-    if (isActualReload() && !indexParam && searchView.length > 0) {
+    if (isActualReload() && !indexParam && !idParam && searchView.length > 0) {
       navigate("/searchdetail?index=0", { replace: true });
     }
-  }, [navigate, indexParam, searchView]);
+  }, [navigate, indexParam, idParam, searchView]);
 
-  // 현재 인덱스 설정
+  // 현재 인덱스 설정 - ID 우선, 없으면 index 사용
   const [currentIndex, setCurrentIndex] = useState(() => {
+    if (idParam && searchView.length > 0) {
+      // ID로 게시물 찾기
+      const foundIndex = searchView.findIndex((post) => post.id === idParam);
+      return foundIndex >= 0 ? foundIndex : 0;
+    }
     const idx = indexParam ? parseInt(indexParam) : 0;
     return idx >= 0 ? idx : 0;
   });
 
   useEffect(() => {
     if (searchView.length > 0) {
-      const idx = indexParam ? parseInt(indexParam) : 0;
-      if (idx >= 0 && idx < searchView.length && idx !== currentIndex) {
-        setCurrentIndex(idx);
+      let targetIndex = 0;
+
+      if (idParam) {
+        // ID로 게시물 찾기
+        const foundIndex = searchView.findIndex((post) => post.id === idParam);
+        targetIndex = foundIndex >= 0 ? foundIndex : 0;
+      } else if (indexParam) {
+        // index로 게시물 찾기
+        const idx = parseInt(indexParam);
+        targetIndex = idx >= 0 && idx < searchView.length ? idx : 0;
+      }
+
+      if (targetIndex !== currentIndex) {
+        setCurrentIndex(targetIndex);
       }
     }
-  }, [indexParam, searchView]);
+  }, [indexParam, idParam, searchView]);
 
   useEffect(() => {
     const ref = containerRefs.current[currentIndex];
@@ -372,7 +390,7 @@ export default function SearchPageDetail() {
       <div className={styles.content}>
         {searchView.map((currentResult, i) => (
           <div
-            key={currentResult.index}
+            key={currentResult.index} // 🔥 기존 index를 key로 사용 (애니메이션 유지)
             style={{
               display: "flex",
               width: "1256px",
