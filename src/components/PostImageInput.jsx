@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../styles/CreatePostPage.module.css'
 import PhotoBoothCamera from '../components/PhotoBoothCamera'
+import SuccessModal from './SuccessModal';
 
 const PostImageInput = ({ value, onImageChange }) => {
   const [showActionModal, setShowActionModal] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
-
+  const [showCameraModal, setShowCameraModal] = useState(false);
   // value가 변경될 때 미리보기 업데이트
   useEffect(() => {
     if (value) {
@@ -48,8 +49,13 @@ const PostImageInput = ({ value, onImageChange }) => {
 
   // 사진찍기 버튼 클릭
   const handleTakePhoto = () => {
-    setShowCamera(true);
     setShowActionModal(false);
+    setShowCameraModal(true);
+
+    setTimeout(() => {
+      setShowCameraModal(false);
+      setShowCamera(true);
+    }, 2000)
   };
 
   const handleCameraComplete = (result) => {
@@ -211,6 +217,13 @@ const PostImageInput = ({ value, onImageChange }) => {
           </div>
         </div>
       )}
+
+      {/* // 사진찍기 대기 모달 */}
+      <SuccessModal
+        isVisible={showCameraModal}
+        type="camera"
+        onClose={() => setShowCameraModal(false)}
+      />
 
       {showCamera && (
         <PhotoBoothCamera

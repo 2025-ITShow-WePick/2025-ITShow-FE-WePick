@@ -1,0 +1,70 @@
+/* SuccessModal.module.css */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    display: flex;
+    width: 380px;
+    height: 200px;
+    padding: 60px 114px;
+    flex-direction: column;
+    align-items: center;
+    gap: 17px;
+    flex-shrink: 0;
+    justify-content: center;
+    border-radius: 10px;
+    background: #FFF;
+}
+
+
+.successLogo {
+    margin-top: 30px;
+}
+
+.modalTitle {
+    color: var(--BLACK-00, #000);
+    font-family: Pretendard, sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 28px;
+    /* 116.667% */
+    letter-spacing: 0.72px;
+    margin: 0;
+    text-align: center;
+}
+
+.cameraSubTitle {
+    color: var(--BLACK-00, #000);
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    margin-top: -7px;
+    letter-spacing: 0.72px;
+}
+
+.modalSubtitle {
+    color: var(--GRAY-00, #555);
+    font-family: Pretendard, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 28px;
+    /* 175% */
+    letter-spacing: 0.48px;
+    margin: 0;
+    text-align: center;
+}

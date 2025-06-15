@@ -16,9 +16,10 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
   const [selectedFrame, setSelectedFrame] = useState(null);
   const [stream, setStream] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [frameImagesLoaded, setFrameImagesLoaded] = useState(false);
   const videoRef = useRef(null);
   const timerRef = useRef(null);
-  const [isUploading, setIsUploading] = useState(false);
   const canvasRef = useRef(null);
 
   // 프레임 옵션들
@@ -27,8 +28,27 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
     { id: 2, name: '프레임 2', image: frame2 },
     { id: 3, name: '프레임 3', image: frame3 },
   ];
-  console.log('선택된 프레임:', frameOptions);
-  console.log('첫 번째 프레임 이미지:', frameOptions[0].image);
+
+  // 프레임 이미지들 미리 로드
+  useEffect(() => {
+    const loadFrameImages = () => {
+      let loadedCount = 0;
+      const totalImages = frameOptions.length;
+
+      frameOptions.forEach((frame) => {
+        const img = new Image();
+        img.onload = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            setFrameImagesLoaded(true);
+          }
+        };
+        img.src = frame.image;
+      });
+    };
+
+    loadFrameImages();
+  }, []);
 
   // 개별 사진을 백엔드에 업로드하는 함수
   const uploadPhoto = async (photoBlob, photoIndex) => {
@@ -225,15 +245,18 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
         {currentStep === 'shooting' && (
           <div className={styles.shootingLayout}>
             <div className={styles.frameHeader}>
-              {/* <div class/Name={styles.frameTitle}> */}
-              <Logo size="small" />
-              <button
-                className="text-white text-2xl hover:opacity-70 transition-opacity"
-                onClick={onClose}
-              >
-                ×
-              </button>
-              {/* </div> */}
+              <div className={styles.frameTitle}>
+                <Logo size="small" />
+                <button
+                  className={styles.closeBtnCamera}
+                  onClick={onClose}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="71" height="71" viewBox="0 0 71 71" fill="none">
+                    <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" stroke-width="2" />
+                    <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" stroke-width="2" />
+                  </svg>
+                </button>
+              </div>
               <p className={styles.frameSubtitle}>카메라를 응시해 주세요</p>
             </div>
             <div className={styles.mainContent}>
@@ -258,13 +281,13 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
                   </div>
                 )}
 
-                {countdown && (
+                {/* {countdown && (
                   <div className={styles.countdownOverlay}>
                     <div className={styles.countdownText}>
                       {countdown}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
 
               {/* 하단 사진 스트립 */}
@@ -297,23 +320,26 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
         {currentStep === 'frameSelect' && (
           <div className={styles.frameSelectScreen}>
             <div className={styles.frameHeader}>
-              {/* <div class/Name={styles.frameTitle}> */}
-              <Logo size="small" />
-              <button
-                className="text-white text-2xl hover:opacity-70 transition-opacity"
-                onClick={onClose}
-              >
-                ×
-              </button>
-              {/* </div> */}
+              <div className={styles.frameTitle}>
+                <Logo size="small" />
+                <button
+                  className={styles.closeBtn}
+                  onClick={onClose}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="71" height="71" viewBox="0 0 71 71" fill="none">
+                    <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" stroke-width="2" />
+                    <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" stroke-width="2" />
+                  </svg>
+                </button>
+              </div>
               <p className={styles.frameSubtitle}>원하는 네컷 프레임을 선택해주세요</p>
             </div>
 
             <div className={styles.frameSelection}>
               {/* 좌측 화살표 */}
-              <button className={`${styles.navArrow} ${styles.leftArrow}`}>
+              {/* <button className={`${styles.navArrow} ${styles.leftArrow}`}>
                 ‹
-              </button>
+              </button> */}
 
               <div className={styles.frameContent}>
                 {/* 프레임 옵션들 */}
@@ -335,30 +361,16 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
               </div>
 
               {/* 우측 화살표 */}
-              <button className={`${styles.navArrow} ${styles.rightArrow}`}>
+              {/* <button className={`${styles.navArrow} ${styles.rightArrow}`}>
                 ›
-              </button>
+              </button> */}
             </div>
-            {/* 
-            <button
-              className={styles.completeBtn}
-              // onClick={() => handleFrameSelect(frameOptions[0])}
-              onClick={() => {
-                if (selectedFrame) {
-                  handleFrameSelect(selectedFrame);
-                } else {
-                  alert('프레임을 선택해주세요')
-                }
-              }}
-            >
-              완료
-            </button> */}
           </div>
         )}
 
         <canvas ref={canvasRef} className={styles.hidden} />
       </div>
-    </div>
+    </div >
   );
 }
 
