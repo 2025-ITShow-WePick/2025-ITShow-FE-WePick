@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
-import axios from 'axios'; // Add this import
 import { uploadImage, savePost } from '../services/api';
 import Logo from '../components/Logo';
 import PostImageInput from '../components/PostImageInput';
-// import PostImageInputGroup from '../components/PostImageInputGroup'
 import PostLocationInput from '../components/PostLocationInput';
 import PostDateInput from '../components/PostDateInput';
 import PostMemoInput from '../components/PostMemoInput';
 import PostTagInput from '../components/PostTagInput';
 import PostUploadButton from '../components/PostUploadButton';
+import SuccessModal from '../components/SuccessModal';
 import styles from '../styles/CreatePostPage.module.css'
 import InputWrapper from '../components/InputWrapper';
-// import styles from '../styles/CommInput.module.css'
 
-// const API_BASE_URL = 'http://localhost:3000';
 const EXISTING_USER_ID = "684cfa6c0811356c21e5c21c";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -40,7 +38,7 @@ const CreatePostPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
-
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const navigate = useNavigate();
     const handleCancel = () => {
@@ -201,8 +199,17 @@ const CreatePostPage = () => {
             const result = await savePost(postData);
 
             console.log('게시물 저장 성공:', result);
-            alert('게시물이 성공적으로 업로드되었습니다!');
-            navigate('/search');
+            // alert 대신 모달 표시
+            setShowSuccessModal(true);
+
+            // 2초 후 모달 닫고 페이지 이동
+            setTimeout(() => {
+                setShowSuccessModal(false);
+                navigate('/search');
+            }, 2000);
+
+
+            // navigate('/search');
             // 성공 시 폼 초기화
             resetForm();
 
@@ -269,8 +276,8 @@ const CreatePostPage = () => {
                     disabled={isLoading}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="71" height="71" viewBox="0 0 71 71" fill="none">
-                        <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" stroke-width="2" />
-                        <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" stroke-width="2" />
+                        <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" strokeWidth="2" />
+                        <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" strokeWidth="2" />
                     </svg>
                 </button>
             </div>
@@ -303,6 +310,7 @@ const CreatePostPage = () => {
                         memoValue={formData.memo}
                         onChange={value => handleInputChange('memo', value)}
                     />
+
                     <PostTagInput
                         tagValue={formData.tags}
                         onChange={tagArray => handleInputChange('tags', tagArray)}
@@ -326,6 +334,14 @@ const CreatePostPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* 성공 모달 */}
+            <SuccessModal
+                isVisible={showSuccessModal}
+                type="upload"
+                onClose={() => setShowSuccessModal(false)}
+            />
+
             {/* 개발용 디버그 정보 */}
             {process.env.NODE_ENV === 'development' && (
                 <div className={styles.debugInfo}>

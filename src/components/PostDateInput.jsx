@@ -6,13 +6,15 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const CustomInput = forwardRef(({ value, onClick, placeholder }, ref) => (
+const CustomInput = forwardRef(({ value, onClick, placeholder, hasValue }, ref) => (
   <div className={styles.inputWithIcon} onClick={onClick} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
     <input
       ref={ref}
-      className={styles.dateInputCustom}
+      // className={styles.dateInputCustom}
+      className={`${styles.dateInputCustom} ${hasValue ? styles.dateInputWithValue : ''}`}
       value={value}
-      placeholder={placeholder}
+      type="text"
+      placeholder="YYYY/MM/DD"
       readOnly
       onClick={onClick}
       style={{ flex: 1, cursor: 'pointer' }}
@@ -34,7 +36,7 @@ const CustomInput = forwardRef(({ value, onClick, placeholder }, ref) => (
 ));
 
 const PostDateInput = ({ value, onChange }) => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
   // const inputRef = useRef(null);
   // const datePickerRef = useRef(null);
 
@@ -47,9 +49,10 @@ const PostDateInput = ({ value, onChange }) => {
   return (
     <InputWrapper label="날짜">
       <DatePicker
+        // style={{ color: '#bdbdbdb' }}
         selected={selectedDate}
         onChange={handleChange}
-        customInput={<CustomInput placeholder="YYYY/MM/DD" value={value} />}
+        customInput={<CustomInput placeholder="YYYY/MM/DD" value={value} hasValue={!!value} />}
         dateFormat="yyyy/MM/dd"
       />
     </InputWrapper>

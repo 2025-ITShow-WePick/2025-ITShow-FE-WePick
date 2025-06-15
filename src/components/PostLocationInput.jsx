@@ -16,28 +16,123 @@ const PostLocationInput = ({ value, onChange }) => {
   const [isLoading, setIsLoading] = useState(false);
   const mapRef = useRef(null);
   const searchInputRef = useRef(null);
-  console.log(import.meta.env.VITE_KAKAO_API_KEY);
-  // const handleSearch = async () => {
-  //   if (!query.trim() || !window.kakao) return;
+  const debounceTimerRef = useRef(null);
+  // 카테고리별 아이콘 매핑
+  const getCategoryIcon = (categoryName) => {
+    if (!categoryName) return '📍';
 
-  //   setIsLoading(true);
-  //   try {
-  //     const ps = new window.kakao.maps.services.Places()
+    const category = categoryName.toLowerCase();
 
-  //     ps.keywordSearch(query, (data, status) => {
-  //       setIsLoading(false);
-  //       if (status === window.kakao.maps.services.Status.OK) {
-  //         setSearchResults(data);
-  //       } else {
-  //         setSearchResults([]);
-  //       }
-  //     });
-  //   } catch (error) {
-  //     setIsLoading(false);
-  //     console.error('검색 중 에러 발생:', error);
-  //   }
+    if (category.includes('음식점') || category.includes('카페') || category.includes('식당')) {
+      return '🍽️';
+    } else if (category.includes('숙박')) {
+      return '🏨';
+    } else if (category.includes('관광') || category.includes('명소')) {
+      return '🏛️';
+    } else if (category.includes('쇼핑') || category.includes('마트')) {
+      return '🛒';
+    } else if (category.includes('병원') || category.includes('의료')) {
+      return '🏥';
+    } else if (category.includes('학교') || category.includes('교육')) {
+      return '🏫';
+    } else if (category.includes('은행') || category.includes('금융')) {
+      return '🏦';
+    } else if (category.includes('주유소') || category.includes('자동차')) {
+      return '⛽';
+    } else if (category.includes('공원') || category.includes('자연')) {
+      return '🌳';
+    } else if (category.includes('문화') || category.includes('예술')) {
+      return '🎭';
+    } else if (category.includes('스포츠') || category.includes('운동')) {
+      return '⚽';
+    } else {
+      return '📍';
+    }
+  };
 
-  // };
+  // 장소 이미지 가져오기 함수
+  const getPlaceImage = async (place) => {
+    try {
+      // Kakao Place Details API를 사용하여 장소 상세 정보 및 이미지 가져오기
+      const KAKAO_API_KEY = import.meta.env.VITE_KAKAO_API_KEY;
+
+      // REST API를 사용하여 장소 상세 정보 가져오기
+      const response = await axios.get(`https://dapi.kakao.com/v2/local/search/keyword.json`, {
+        headers: {
+          Authorization: `KakaoAK ${KAKAO_API_KEY}`
+        },
+        params: {
+          query: place.place_name,
+          x: place.x,
+          y: place.y,
+          radius: 100
+        }
+      });
+
+      // 응답에서 이미지 URL 추출 (있는 경우)
+      if (response.data.documents && response.data.documents.length > 0) {
+        const placeDetail = response.data.documents[0];
+        return placeDetail.image_url || null;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('장소 이미지 가져오기 실패:', error);
+      return null;
+    }
+  };
+
+  // PlaceImageComponent - 장소 이미지 또는 카테고리 아이콘 표시
+  const PlaceImageComponent = ({ place, className }) => {
+    const [imageUrl, setImageUrl] = useState(null);
+    const [imageError, setImageError] = useState(false);
+
+    useEffect(() => {
+      if (place && !imageError) {
+        // 실제 이미지를 가져오는 로직 (선택사항)
+        // getPlaceImage(place).then(setImageUrl);
+
+        // 또는 Google Places나 다른 서비스의 이미지 URL 사용
+        // 예: Google Street View Static API
+        const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=100x100&location=${place.y},${place.x}&key=YOUR_GOOGLE_API_KEY`;
+        // setImageUrl(streetViewUrl);
+      }
+    }, [place, imageError]);
+
+    if (imageUrl && !imageError) {
+      return (
+        <img
+          src={imageUrl}
+          alt={place?.place_name || '장소'}
+          className={className}
+          onError={() => setImageError(true)}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '8px',
+            objectFit: 'cover'
+          }}
+        />
+      );
+    }
+
+    // 이미지가 없으면 카테고리 아이콘 표시
+    return (
+      <div className={className} style={{
+        width: '40px',
+        height: '40px',
+        borderRadius: '8px',
+        backgroundColor: '#f0f0f0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '20px'
+      }}>
+        {getCategoryIcon(place?.category_name)}
+      </div>
+    );
+  };
+
   // 카카오 SDK 로드 확인
   useEffect(() => {
     // 카카오 SDK가 로드될 때까지 대기
@@ -57,6 +152,44 @@ const PostLocationInput = ({ value, onChange }) => {
       return () => window.removeEventListener('load', checkKakaoSDK);
     }
   }, []);
+
+  // 검색 모달이 열릴 때 입력 필드에 자동 포커스
+  useEffect(() => {
+    if (showSearchModal && searchInputRef.current) {
+      // 모달 애니메이션이 끝난 후 포커스를 주기 위해 약간의 지연
+      const timer = setTimeout(() => {
+        searchInputRef.current.focus();
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showSearchModal]);
+
+  // 실시간 검색을 위한 디바운스 효과
+  useEffect(() => {
+    if (query.trim() && showSearchModal) {
+      // 기존 타이머 취소
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      // 새로운 타이머 설정 (300ms 후 검색 실행)
+      debounceTimerRef.current = setTimeout(() => {
+        handleSearch();
+      }, 300);
+    } else if (!query.trim()) {
+      // 검색어가 없으면 결과 초기화
+      setSearchResults([]);
+    }
+
+    // 컴포넌트 언마운트 시 타이머 정리
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [query, showSearchModal]);
+
   const handleSearch = async () => {
     if (!query.trim() || !window.kakao) {
       if (!window.kakao) {
@@ -119,27 +252,30 @@ const PostLocationInput = ({ value, onChange }) => {
   };
 
   // 장소 삭제
-  const handleRemovePlace = async () => {
-    try {
-      // API_BASE_URL도 안전하게 처리
-      const apiBaseUrl = typeof process !== 'undefined' && process.env?.REACT_APP_API_BASE_URL
-        ? import.meta.env.REACT_APP_API_BASE_URL
-        : 'http://localhost:3001/api';
-      // 필요한 경우 백엔드에서도 임시 저장된 장소 정보 삭제
-      if (selectedPlace) {
-        await axios.delete(`${apiBaseUrl}/location/temp/${selectedPlace.id}`, {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-      }
-    } catch (error) {
-      console.error('장소 삭제 처리 중 에러:', error);
-    } finally {
-      setSelectedPlace(null);
-      setShowDropdown(false);
-      onChange('');
-    }
+  const handleRemovePlace = () => {
+    setSelectedPlace(null);
+    setShowDropdown(false);
+    onChange('');
+    // try {
+    //   // API_BASE_URL도 안전하게 처리
+    //   const apiBaseUrl = typeof process !== 'undefined' && process.env?.REACT_APP_API_BASE_URL
+    //     ? import.meta.env.REACT_APP_API_BASE_URL
+    //     : 'http://localhost:3001/api';
+    //   // 필요한 경우 백엔드에서도 임시 저장된 장소 정보 삭제
+    //   if (selectedPlace) {
+    //     await axios.delete(`${apiBaseUrl}/location/temp/${selectedPlace.id}`, {
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       }
+    //     });
+    //   }
+    // } catch (error) {
+    //   console.error('장소 삭제 처리 중 에러:', error);
+    // } finally {
+    //   setSelectedPlace(null);
+    //   setShowDropdown(false);
+    //   onChange('');
+    // }
   };
 
 
@@ -203,12 +339,7 @@ const PostLocationInput = ({ value, onChange }) => {
               </div>
               <div className={styles.selectedLocationText}>
                 <h3 className={styles.placeName}>{selectedPlace.place_name}</h3>
-                {/* <div className={styles.locationChangeText}>클릭해서 변경하기</div> */}
-                {/* <div className={styles.placeAddress}>
-                    {selectedPlace.road_address_name || selectedPlace.address_name}
-                  </div> */}
               </div>
-              {/* <div className={styles.expandIcon}> */}
 
               <div
                 className={`${styles.expandIcon} ${showDropdown ? styles.expanded : ''}`}
@@ -232,7 +363,10 @@ const PostLocationInput = ({ value, onChange }) => {
           <div className={styles.dropdown}>
             <div className={styles.selectedPlaceInfo}>
               <div className={styles.placeImageContainer}>
-                <div className={styles.placeThumbnail}>📍</div>
+                <PlaceImageComponent
+                  place={selectedPlace}
+                  className={styles.placeThumbnail}
+                />
               </div>
               <div className={styles.placeDetails}>
                 <h3 className={styles.placeName}>{selectedPlace.place_name}</h3>
@@ -301,7 +435,13 @@ const PostLocationInput = ({ value, onChange }) => {
                       className={styles.resultItem}
                       onClick={() => handleSelectedPlace(place)}
                     >
-                      <div className={styles.resultIcon}>📍</div>
+                      <div className={styles.resultIcon}>
+                        <PlaceImageComponent
+                          place={place}
+                          className={styles.resultPlaceImage}
+                        />
+                      </div>
+                      {/* <div className={styles.resultIcon}>📍</div> */}
                       <div className={styles.resultInfo}>
                         <div className={styles.resultName}>{place.place_name}</div>
                         <div className={styles.resultAddress}>

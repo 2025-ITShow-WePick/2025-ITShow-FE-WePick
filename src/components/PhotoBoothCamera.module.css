@@ -15,11 +15,78 @@
     background: white;
     width: 90%;
     max-width: 1369px;
-    height: 80%;
-    border-radius: 10px;
+    width: 1300px;
+    height: 700px;
+    padding: 58px 0px;
+    /* border-radius: 10px; */
     position: relative;
     display: flex;
     flex-direction: column;
+}
+
+
+.frameHeader {
+    text-align: center;
+    margin-bottom: 2%;
+}
+
+.headerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.shotCounter {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    background: #f0f0f0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    min-width: 60px;
+}
+
+.closeBtnCamera {
+    position: absolute;
+    top: 30%;
+    left: 254%;
+    display: flex;
+    background: none;
+    border: none;
+    color: #000;
+    font-size: 32px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    width: 60px;
+    height: 60px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.closeBtn {
+    position: absolute;
+    bottom: 20%;
+    right: 3%;
+    display: flex;
+    background: none;
+    border: none;
+    color: #000;
+    font-size: 40px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-weight: 100;
+    width: 60px;
+    height: 60px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.closeBtn:hover {
+    opacity: 0.7;
+    /* background: rgba(0, 0, 0, 0.1); */
 }
 
 .cameraHeader {
@@ -46,6 +113,7 @@
     font-weight: normal;
 }
 
+/* 
 .closeBtn {
     background: none;
     border: none;
@@ -53,38 +121,59 @@
     font-size: 24px;
     cursor: pointer;
     transition: opacity 0.2s;
-}
+} */
 
-.closeBtn:hover {
+/* .closeBtn:hover {
     opacity: 0.7;
-}
+} */
 
-.shootingLayout {
+/* .shootingLayout {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 20px;
+} */
+.shootingLayout {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px 20px 20px;
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
 }
 
 .cameraView {
-    margin-top: 20px;
     flex: 1;
-    /* background: #000; */
+    margin-top: 10px;
     position: relative;
-    margin-bottom: 20px;
-    width: 733px;
+    /* margin-bottom: 5px; */
+    width: 749px;
+    /* width: 100%; */
     display: flex;
-    height: 368px;
+    /* max-width: 733px; */
+    /* height: 368px; */
     justify-content: center;
+    align-items: center;
     overflow: hidden;
+    background: #000;
 }
 
 .videoFeed {
-    /* width: 100%;
-    height: 100%; */
-    /* object-fit: cover; */
+    /* height: 368px; */
+    width: 100%;
+    height: 100%;
+    max-height: 420px;
+    object-fit: cover;
 }
 
 .countdownOverlay {
@@ -93,10 +182,10 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 10;
 }
 
 .countdownText {
@@ -133,15 +222,16 @@
     display: flex;
     justify-content: center;
     gap: 10px;
-    padding: 15px;
+    padding: 10px;
 }
 
 .photoSlot {
-    width: 120px;
-    height: 100px;
+    width: 180px;
+    height: 111px;
     background: white;
     position: relative;
     overflow: hidden;
+
 }
 
 .photoSlot img {
@@ -162,11 +252,12 @@
     font-weight: bold;
 }
 
+/* 
 .slotCountdown {
     font-size: 24px;
     color: #ffffff;
     animation: pulse 0.8s ease-in-out;
-}
+} */
 
 .shootingInfo {
     text-align: center;
@@ -179,9 +270,9 @@
     margin: 5px 0;
 }
 
-.frameSolot {
+/* .frameSolot {
     background-color: #EEEEEE;
-}
+} */
 
 .frameSelectScreen {
     flex: 1;
@@ -190,30 +281,6 @@
     flex-direction: column;
     /* background: white; */
     position: relative;
-}
-
-.frameHeader {
-    text-align: center;
-    margin-top: 30px;
-}
-
-.frameTitle {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #000;
-}
-
-.frameSubtitle {
-    color: var(--BLACK-00, #000);
-    text-align: center;
-    font-family: Pretendard;
-    font-size: 28px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 10px;
-    margin-bottom: 10px;
-    letter-spacing: 0.84px;
 }
 
 .frameSelection {
@@ -225,6 +292,8 @@
     /* margin-bottom: 20px; */
     position: relative;
 }
+
+
 
 .navArrow {
     position: absolute;
@@ -263,6 +332,173 @@
     gap: 50px;
 }
 
+.frameOptions {
+    display: flex;
+    gap: 30px;
+}
+
+.frameOption {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.frameOption:hover {
+    transform: scale(1.05);
+}
+
+.frameOption:hover:not(.frameLoading) {
+    transform: scale(1.05);
+}
+
+.frameOption.frameLoading {
+    cursor: not-allowed;
+}
+
+.frameImage {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.frameLoadingPlaceholder {
+    width: 150px;
+    height: 500px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+}
+
+.loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #666;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .cameraContainer {
+        width: 95%;
+        height: 90%;
+    }
+
+    .headerContent {
+        padding: 0 10px;
+    }
+
+    .shotCounter {
+        font-size: 18px;
+        padding: 6px 12px;
+    }
+
+    .closeBtn {
+        font-size: 28px;
+        width: 35px;
+        height: 35px;
+    }
+
+    .frameSubtitle {
+        font-size: 20px;
+    }
+
+    .frameSelection {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .navArrow {
+        display: none;
+    }
+
+    .frameContent {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .photoStrip {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .photoSlot {
+        width: 70px;
+        height: 85px;
+    }
+
+    .frameOptions {
+        gap: 20px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .frameOption {
+        width: 120px;
+        height: 400px;
+    }
+
+    .frameLoadingPlaceholder {
+        width: 120px;
+        height: 400px;
+    }
+
+    .countdownText {
+        font-size: 60px;
+    }
+
+    .cameraView {
+        max-height: 300px;
+    }
+
+    .videoFeed {
+        max-height: 300px;
+    }
+}
+
+
+.frameTitle {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #000;
+}
+
+.frameSubtitle {
+    color: var(--BLACK-00, #000);
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 10px;
+    margin-bottom: 10px;
+    letter-spacing: 0.84px;
+}
+
+
 .previewStrip {
     background: #e0e0e0;
     padding: 20px;
@@ -285,20 +521,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-.frameOptions {
-    display: flex;
-    gap: 30px;
-}
-
-.frameOption {
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.frameOption:hover {
-    transform: scale(1.05);
 }
 
 .framePreview {
