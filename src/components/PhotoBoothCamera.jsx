@@ -6,7 +6,7 @@ import frame1 from '../assets/images/frame1.png';
 import frame2 from '../assets/images/frame2.png';
 import frame3 from '../assets/images/frame3.png';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://52.78.100.102:3000';
 
 export default function PhotoBoothCamera({ onComplete, onClose }) {
   const [currentStep, setCurrentStep] = useState('shooting'); // shooting, frameSelect
@@ -56,7 +56,7 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
       const formData = new FormData();
       formData.append('image', photoBlob, `photo_${photoIndex}.jpg`);
 
-      const response = await axios.post(`${API_BASE_URL}/post/upload-image`, formData, {
+      const response = await axios.post('/post/upload-image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
@@ -252,8 +252,8 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
                   onClick={onClose}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="71" height="71" viewBox="0 0 71 71" fill="none">
-                    <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" stroke-width="2" />
-                    <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" stroke-width="2" />
+                    <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" strokeWidth="2" />
+                    <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" strokeWidth="2" />
                   </svg>
                 </button>
               </div>
@@ -327,8 +327,8 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
                   onClick={onClose}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="71" height="71" viewBox="0 0 71 71" fill="none">
-                    <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" stroke-width="2" />
-                    <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" stroke-width="2" />
+                    <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" strokeWidth="2" />
+                    <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" strokeWidth="2" />
                   </svg>
                 </button>
               </div>
