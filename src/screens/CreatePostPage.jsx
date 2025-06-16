@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
+// API 함수들을 올바르게 import
 import { uploadImage, savePost } from '../services/api';
 import Logo from '../components/Logo';
 import PostImageInput from '../components/PostImageInput';
@@ -48,6 +49,7 @@ const CreatePostPage = () => {
     const handleUploadToSearch = () => {
         navigate('/search');
     };
+
     // formData 상태를 업데이트
     const handleInputChange = (field, value) => {
         setFormData(prev => ({
@@ -99,8 +101,6 @@ const CreatePostPage = () => {
         }
     };
 
-
-
     // Kakao 장소 검색 실행 함수
     const performKakaoSearch = (searchTerm) => {
         const places = new window.kakao.maps.services.Places();
@@ -151,100 +151,73 @@ const CreatePostPage = () => {
 
             setIsLoading(true);
 
-            // 2. 이미지 업로드
+            // 1. 이미지 업로드
             console.log('이미지 업로드 시작...');
-            console.log('업로드할 이미지:', {
-                name: formData.image.name,
-                size: formData.image.size,
-                type: formData.image.type
-            });
-
-
-            // 이미지가 Blob인지 File인지 확인
-            if (!(formData.image instanceof File) && !(formData.image instanceof Blob)) {
-                throw new Error('유효하지 않은 이미지 파일입니다.');
-            }
-
             const uploadResult = await uploadImage(formData.image);
             console.log('이미지 업로드 응답:', uploadResult);
 
-            // 응답 구조 확인 및 URL 추출
+            // 응답 구조에 따른 URL 추출 개선
             let imageUrl;
+
+            // uploadImage 함수는 axios 직접 호출이므로 response.data 구조
             if (uploadResult && uploadResult.data) {
-                imageUrl = uploadResult.data; // 백엔드에서 data 필드에 URL 반환
+                // 서버가 { data: "이미지URL" } 형태로 응답하는 경우
+                imageUrl = uploadResult.data;
+            } else if (uploadResult && uploadResult.imageUrl) {
+                // 서버가 { imageUrl: "이미지URL" } 형태로 응답하는 경우  
+                imageUrl = uploadResult.imageUrl;
             } else if (typeof uploadResult === 'string') {
+                // 서버가 단순 문자열로 응답하는 경우
                 imageUrl = uploadResult;
+            } else {
+                console.error('예상치 못한 업로드 응답 구조:', uploadResult);
+                throw new Error('이미지 업로드 응답을 처리할 수 없습니다.');
             }
 
             if (!imageUrl) {
-                console.error('이미지 URL을 찾을 수 없습니다. 업로드 응답:', uploadResult);
-                throw new Error('이미지 업로드는 완료되었지만 URL을 받을 수 없습니다.');
+                throw new Error('이미지 URL을 받을 수 없습니다.');
             }
 
-            console.log('이미지 업로드 완료:', imageUrl);
+            console.log('추출된 이미지 URL:', imageUrl);
 
-            // 3. 게시물 데이터 준비 - MongoDB 스키마에 맞게
+            // 2. 게시물 데이터 준비
             const postData = {
                 user: EXISTING_USER_ID,
                 imageUrl,
                 location: formData.location,
-                date: new Date(formData.date), // Date 객체로 변환
+                date: new Date(formData.date),
                 memo: formData.memo || '',
-                tags: formData.tags, // 이미 배열이어야 함
+                tags: formData.tags,
             };
-            // console.log(req.body.tags);
+
             console.log('게시물 저장 시작...', postData);
 
-            // 4. 게시물 저장
+            // 3. 게시물 저장 - api 인터셉터 때문에 응답 구조가 다를 수 있음
             const result = await savePost(postData);
-
             console.log('게시물 저장 성공:', result);
-            // alert 대신 모달 표시
-            setShowSuccessModal(true);
 
-            // 2초 후 모달 닫고 페이지 이동
+            // 성공 처리
+            setShowSuccessModal(true);
             setTimeout(() => {
                 setShowSuccessModal(false);
                 navigate('/search');
             }, 2000);
 
-
-            // navigate('/search');
-            // 성공 시 폼 초기화
             resetForm();
 
         } catch (error) {
             console.error('업로드 실패:', error);
 
-            // 더 자세한 오류 처리
-            if (error.response) {
-                // 서버가 오류 상태로 응답한 경우
-                console.error('서버 응답 오류:', {
-                    status: error.response.status,
-                    statusText: error.response.statusText,
-                    data: error.response.data
-                });
+            // 에러 메시지 개선
+            let errorMessage = '업로드 중 오류가 발생했습니다.';
 
-                const errorMessage = error.response.data?.message ||
-                    error.response.data?.error ||
-                    `서버 오류 (${error.response.status})`;
-                alert(`서버 오류: ${errorMessage}`);
-
-            } else if (error.request) {
-                // 요청은 했지만 응답을 받지 못한 경우
-                console.error('네트워크 오류 - 요청:', error.request);
-                console.error('요청 설정:', error.config);
-                alert('서버에 연결할 수 없습니다. 네트워크 연결과 서버 상태를 확인해주세요.');
-
-            } else {
-                // 기타 오류
-                console.error('오류 상세:', {
-                    message: error.message,
-                    stack: error.stack,
-                    name: error.name
-                });
-                alert(`업로드 중 오류가 발생했습니다: ${error.message}`);
+            if (error.message) {
+                errorMessage = error.message;
+            } else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
             }
+
+            alert(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -262,8 +235,6 @@ const CreatePostPage = () => {
         });
         setSearchResults([]);
     };
-
-
 
     return (
         <div>
@@ -316,11 +287,6 @@ const CreatePostPage = () => {
                         onChange={tagArray => handleInputChange('tags', tagArray)}
                     />
 
-                    {/* <div className={styles.buttonContainer}>
-                        <button onClick={onClick} className={styles.button}>
-                            업로드
-                        </button>
-                    </div> */}
                     <div className={styles.uploadButtonContainer}>
                         <button
                             className={styles.uploadButton}
@@ -329,8 +295,6 @@ const CreatePostPage = () => {
                         >
                             {isLoading ? '업로드 중...' : '게시물 업로드'}
                         </button>
-
-
                     </div>
                 </div>
             </div>
