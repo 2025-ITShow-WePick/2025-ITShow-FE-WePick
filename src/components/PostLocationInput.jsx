@@ -3,20 +3,23 @@ import styles from '../styles/CreatePostPage.module.css'
 import InputWrapper from './InputWrapper';
 import axios from 'axios';
 
-// // API 기본 설정
-// const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
+const KAKAO_API_KEY = import.meta.env.VITE_KAKAO_API_KEY;
 
 const PostLocationInput = ({ value, onChange }) => {
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false); // 드롭다운 상태
+  const [showDropdown, setShowDropdown] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [kakaoLoaded, setKakaoLoaded] = useState(false);
+  const [sdkError, setSdkError] = useState(false);
+
   const mapRef = useRef(null);
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
+
   // 카테고리별 아이콘 매핑
   const getCategoryIcon = (categoryName) => {
     if (!categoryName) return '📍';
@@ -50,73 +53,8 @@ const PostLocationInput = ({ value, onChange }) => {
     }
   };
 
-  // 장소 이미지 가져오기 함수
-  const getPlaceImage = async (place) => {
-    try {
-      // Kakao Place Details API를 사용하여 장소 상세 정보 및 이미지 가져오기
-      const KAKAO_API_KEY = import.meta.env.VITE_KAKAO_API_KEY;
-
-      // REST API를 사용하여 장소 상세 정보 가져오기
-      const response = await axios.get(`https://dapi.kakao.com/v2/local/search/keyword.json`, {
-        headers: {
-          Authorization: `KakaoAK ${KAKAO_API_KEY}`
-        },
-        params: {
-          query: place.place_name,
-          x: place.x,
-          y: place.y,
-          radius: 100
-        }
-      });
-
-      // 응답에서 이미지 URL 추출 (있는 경우)
-      if (response.data.documents && response.data.documents.length > 0) {
-        const placeDetail = response.data.documents[0];
-        return placeDetail.image_url || null;
-      }
-
-      return null;
-    } catch (error) {
-      console.error('장소 이미지 가져오기 실패:', error);
-      return null;
-    }
-  };
-
   // PlaceImageComponent - 장소 이미지 또는 카테고리 아이콘 표시
   const PlaceImageComponent = ({ place, className }) => {
-    const [imageUrl, setImageUrl] = useState(null);
-    const [imageError, setImageError] = useState(false);
-
-    useEffect(() => {
-      if (place && !imageError) {
-        // 실제 이미지를 가져오는 로직 (선택사항)
-        // getPlaceImage(place).then(setImageUrl);
-
-        // 또는 Google Places나 다른 서비스의 이미지 URL 사용
-        // 예: Google Street View Static API
-        const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=100x100&location=${place.y},${place.x}&key=YOUR_GOOGLE_API_KEY`;
-        // setImageUrl(streetViewUrl);
-      }
-    }, [place, imageError]);
-
-    if (imageUrl && !imageError) {
-      return (
-        <img
-          src={imageUrl}
-          alt={place?.place_name || '장소'}
-          className={className}
-          onError={() => setImageError(true)}
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '8px',
-            objectFit: 'cover'
-          }}
-        />
-      );
-    }
-
-    // 이미지가 없으면 카테고리 아이콘 표시
     return (
       <div className={className} style={{
         width: '40px',
@@ -133,34 +71,70 @@ const PostLocationInput = ({ value, onChange }) => {
     );
   };
 
-  // 카카오 SDK 로드 확인
+  // 카카오 SDK 로드 (개선된 버전)
   useEffect(() => {
-    // 카카오 SDK가 로드될 때까지 대기
-    const checkKakaoSDK = () => {
+    // 이미 로드된 경우 체크
+    if (window.kakao && window.kakao.maps) {
+      console.log('카카오 SDK 이미 로드됨');
+      setKakaoLoaded(true);
+      return;
+    }
+
+    // 기존 스크립트가 있는지 확인
+    const existingScript = document.querySelector('script[src*="dapi.kakao.com"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    console.log('카카오 SDK 로딩 시작...');
+    console.log('API Key:', KAKAO_API_KEY ? '설정됨' : '설정되지 않음');
+
+    // API 키 확인
+    if (!KAKAO_API_KEY) {
+      console.error('카카오 API 키가 설정되지 않았습니다.');
+      setSdkError(true);
+      return;
+    }
+
+    // 스크립트 태그 생성
+    const script = document.createElement('script');
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`;
+    script.async = true;
+
+    script.onload = () => {
+      console.log('카카오 스크립트 로드 완료, SDK 초기화 중...');
+
+      // SDK 초기화
       if (window.kakao && window.kakao.maps) {
-        console.log('카카오 지도 SDK 로드 완료');
+        window.kakao.maps.load(() => {
+          console.log('카카오 SDK 초기화 완료');
+          setKakaoLoaded(true);
+          setSdkError(false);
+        });
       } else {
-        console.warn('카카오 지도 SDK가 로드되지 않았습니다.');
+        console.error('카카오 객체를 찾을 수 없습니다.');
+        setSdkError(true);
       }
     };
 
-    // 페이지 로드 후 SDK 확인
-    if (document.readyState === 'complete') {
-      checkKakaoSDK();
-    } else {
-      window.addEventListener('load', checkKakaoSDK);
-      return () => window.removeEventListener('load', checkKakaoSDK);
-    }
+    script.onerror = (error) => {
+      console.error('카카오 지도 SDK 로드 실패:', error);
+      setSdkError(true);
+    };
+
+    document.head.appendChild(script);
+
+    return () => {
+      // 클린업 시 스크립트 제거하지 않음 (다른 컴포넌트에서 사용할 수 있음)
+    };
   }, []);
 
   // 검색 모달이 열릴 때 입력 필드에 자동 포커스
   useEffect(() => {
     if (showSearchModal && searchInputRef.current) {
-      // 모달 애니메이션이 끝난 후 포커스를 주기 위해 약간의 지연
       const timer = setTimeout(() => {
         searchInputRef.current.focus();
       }, 100);
-
       return () => clearTimeout(timer);
     }
   }, [showSearchModal]);
@@ -168,21 +142,17 @@ const PostLocationInput = ({ value, onChange }) => {
   // 실시간 검색을 위한 디바운스 효과
   useEffect(() => {
     if (query.trim() && showSearchModal) {
-      // 기존 타이머 취소
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
 
-      // 새로운 타이머 설정 (300ms 후 검색 실행)
       debounceTimerRef.current = setTimeout(() => {
         handleSearch();
       }, 300);
     } else if (!query.trim()) {
-      // 검색어가 없으면 결과 초기화
       setSearchResults([]);
     }
 
-    // 컴포넌트 언마운트 시 타이머 정리
     return () => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
@@ -190,42 +160,48 @@ const PostLocationInput = ({ value, onChange }) => {
     };
   }, [query, showSearchModal]);
 
-  const handleSearch = async () => {
-    if (!query.trim() || !window.kakao) {
-      if (!window.kakao) {
-        alert('카카오 지도 SDK가 로드되지 않았습니다.');
-        return;
-      }
+  const handleSearch = () => {
+    // SDK 로딩 상태 확인
+    if (!kakaoLoaded) {
+      alert('카카오 지도 SDK가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    if (sdkError) {
+      alert('카카오 지도 SDK 로드에 실패했습니다. 페이지를 새로고침 해주세요.');
+      return;
+    }
+
+    if (!window.kakao || !window.kakao.maps || !window.kakao.maps.services) {
+      alert('카카오 지도 서비스를 사용할 수 없습니다.');
+      return;
+    }
+
+    if (!query.trim()) {
+      alert('검색어를 입력하세요.');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // 카카오 지도 SDK의 Places 서비스 사용
       const ps = new window.kakao.maps.services.Places();
-
       ps.keywordSearch(query, (data, status) => {
         setIsLoading(false);
+        console.log('검색 결과:', status, data);
 
         if (status === window.kakao.maps.services.Status.OK) {
-          console.log('검색 결과:', data);
           setSearchResults(data);
         } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-          console.log('검색 결과가 없습니다.');
           setSearchResults([]);
         } else {
-          console.error('검색 오류:', status);
-          setSearchResults([]);
-          alert('검색 중 오류가 발생했습니다.');
+          console.error('검색 실패:', status);
+          alert('검색 중 오류가 발생했습니다. 다시 시도해주세요.');
         }
-      }, {
-        size: 10 // 검색 결과 개수
       });
-
     } catch (error) {
       setIsLoading(false);
-      console.error('검색 중 에러 발생:', error);
+      console.error('검색 중 예외 발생:', error);
       alert('검색 중 오류가 발생했습니다.');
     }
   };
@@ -234,19 +210,21 @@ const PostLocationInput = ({ value, onChange }) => {
   const handleSelectedPlace = async (place) => {
     setSelectedPlace(place);
     setSearchResults([]);
-    setQuery('')
+    setQuery('');
     setShowSearchModal(false);
-    setShowDropdown(false); // 드롭다운 닫기
+    setShowDropdown(false);
     onChange(place.place_name);
   };
 
   // 메인 입력 필드 클릭 처리
   const handleMainInputClick = () => {
     if (selectedPlace) {
-      // 장소가 선택된 경우 드롭다운 토글
       setShowDropdown(!showDropdown);
     } else {
-      // 장소가 선택되지 않은 경우 검색 모달 열기
+      if (sdkError) {
+        alert('카카오 지도 SDK 로드에 실패했습니다. 페이지를 새로고침 해주세요.');
+        return;
+      }
       setShowSearchModal(true);
     }
   };
@@ -256,51 +234,36 @@ const PostLocationInput = ({ value, onChange }) => {
     setSelectedPlace(null);
     setShowDropdown(false);
     onChange('');
-    // try {
-    //   // API_BASE_URL도 안전하게 처리
-    //   const apiBaseUrl = typeof process !== 'undefined' && process.env?.REACT_APP_API_BASE_URL
-    //     ? import.meta.env.REACT_APP_API_BASE_URL
-    //     : 'http://localhost:3001/api';
-    //   // 필요한 경우 백엔드에서도 임시 저장된 장소 정보 삭제
-    //   if (selectedPlace) {
-    //     await axios.delete(`${apiBaseUrl}/location/temp/${selectedPlace.id}`, {
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       }
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error('장소 삭제 처리 중 에러:', error);
-    // } finally {
-    //   setSelectedPlace(null);
-    //   setShowDropdown(false);
-    //   onChange('');
-    // }
   };
-
 
   // 지도 표시
   useEffect(() => {
-    if (showMap && selectedPlace && window.kakao && mapRef.current) {
-      const container = mapRef.current;
-      const options = {
-        center: new window.kakao.maps.LatLng(selectedPlace.y, selectedPlace.x),
-        level: 3
-      };
-      const map = new window.kakao.maps.Map(container, options);
+    if (showMap && selectedPlace && kakaoLoaded && window.kakao && mapRef.current) {
+      try {
+        const container = mapRef.current;
+        const options = {
+          center: new window.kakao.maps.LatLng(selectedPlace.y, selectedPlace.x),
+          level: 3
+        };
+        const map = new window.kakao.maps.Map(container, options);
 
-      // 마커 추가
-      const marker = new window.kakao.maps.Marker({
-        map: map,
-        position: new window.kakao.maps.LatLng(selectedPlace.y, selectedPlace.x)
-      });
+        // 마커 추가
+        const marker = new window.kakao.maps.Marker({
+          map: map,
+          position: new window.kakao.maps.LatLng(selectedPlace.y, selectedPlace.x)
+        });
 
-      const infoWindow = new window.kakao.maps.InfoWindow({
-        content: `<div style="padding:5px;font-size:12px">${selectedPlace.place_name}</div>`
-      });
-      infoWindow.open(map, marker);
+        const infoWindow = new window.kakao.maps.InfoWindow({
+          content: `<div style="padding:5px;font-size:12px">${selectedPlace.place_name}</div>`
+        });
+        infoWindow.open(map, marker);
+      } catch (error) {
+        console.error('지도 생성 실패:', error);
+        alert('지도를 불러오는데 실패했습니다.');
+        setShowMap(false);
+      }
     }
-  }, [showMap, selectedPlace]);
+  }, [showMap, selectedPlace, kakaoLoaded]);
 
   // Enter 처리
   const handleKeyDown = (e) => {
@@ -311,11 +274,22 @@ const PostLocationInput = ({ value, onChange }) => {
 
   return (
     <InputWrapper label="위치(지점)">
+      {/* SDK 로딩 상태 표시 */}
+      {!kakaoLoaded && !sdkError && (
+        <div style={{ padding: '10px', color: '#666', fontSize: '14px' }}>
+          카카오 지도 SDK 로딩 중...
+        </div>
+      )}
+
+      {sdkError && (
+        <div style={{ padding: '10px', color: '#e74c3c', fontSize: '14px' }}>
+          지도 서비스를 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.
+        </div>
+      )}
+
       {/* 메인 입력 필드 */}
       <div className={styles.locationInputContainer}>
-        {/* <div className={styles.locationInputField} onClick={() => setShowSearchModal(true)}> */}
         <div className={`${styles.locationInputField} ${showDropdown ? styles.dropdownExpanded : ''}`} onClick={handleMainInputClick}>
-          {/* 장소 선택 전: 오른쪽에만 locationIcon */}
           {!selectedPlace && (
             <>
               <span className={styles.placeholderText}>
@@ -329,7 +303,6 @@ const PostLocationInput = ({ value, onChange }) => {
             </>
           )}
 
-          {/* 장소 선택 후: 왼쪽에 locationIcon + 장소명/주소 + 오른쪽에 expandIcon */}
           {selectedPlace && (
             <>
               <div className={styles.locationIconAfter}>
@@ -340,26 +313,23 @@ const PostLocationInput = ({ value, onChange }) => {
               <div className={styles.selectedLocationText}>
                 <h3 className={styles.placeName}>{selectedPlace.place_name}</h3>
               </div>
-
               <div
                 className={`${styles.expandIcon} ${showDropdown ? styles.expanded : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowDropdown(!showDropdown);
                 }}
-              ><svg width="28" height="16" viewBox="1 0 8 7" fill="none">
+              >
+                <svg width="28" height="16" viewBox="1 0 8 7" fill="none">
                   <path d="M1 1L6 6L11 1" stroke="#939393" strokeWidth="1.3" />
-                </svg></div>
-              {/* </div> */}
+                </svg>
+              </div>
             </>
           )}
         </div>
 
-        {/* 선택된 장소 상세 정보 (기존 selectedPlace 섹션) */}
+        {/* 선택된 장소 상세 정보 드롭다운 */}
         {selectedPlace && showDropdown && (
-          // <div className={styles.selectedPlace}>
-          //   <div className={styles.placeInfo}>
-          //     <div className={styles.placeImage}>
           <div className={styles.dropdown}>
             <div className={styles.selectedPlaceInfo}>
               <div className={styles.placeImageContainer}>
@@ -377,6 +347,7 @@ const PostLocationInput = ({ value, onChange }) => {
                   <button
                     className={styles.viewMapButton}
                     onClick={() => setShowMap(true)}
+                    disabled={!kakaoLoaded}
                   >
                     지점 확인하기
                   </button>
@@ -417,11 +388,14 @@ const PostLocationInput = ({ value, onChange }) => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className={styles.searchInput} />
+                className={styles.searchInput}
+                disabled={!kakaoLoaded}
+              />
               <button
                 className={styles.searchButton}
                 onClick={handleSearch}
-                disabled={isLoading}>
+                disabled={isLoading || !kakaoLoaded}
+              >
                 {isLoading ? '검색중...' : '검색'}
               </button>
             </div>
@@ -441,7 +415,6 @@ const PostLocationInput = ({ value, onChange }) => {
                           className={styles.resultPlaceImage}
                         />
                       </div>
-                      {/* <div className={styles.resultIcon}>📍</div> */}
                       <div className={styles.resultInfo}>
                         <div className={styles.resultName}>{place.place_name}</div>
                         <div className={styles.resultAddress}>
@@ -476,7 +449,7 @@ const PostLocationInput = ({ value, onChange }) => {
           </div>
         </div>
       )}
-    </InputWrapper >
+    </InputWrapper>
   );
 };
 

@@ -1,11 +1,13 @@
 import axios from 'axios';
 
-// API_BASE_URL 정의 추가
-const API_BASE_URL = 'http://localhost:3000';
-
+// API_BASE_URL 정의
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://52.78.100.102:3000';
+const API_BASE_URL = import.meta.env.DEV
+    ? '/api'  // 개발환경에서는 프록시 사용
+    : 'http://52.78.100.102:3000';
 // axios 인스턴스 생성
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+    baseURL: API_BASE_URL,
     timeout: 10000, // 10초 타임아웃
     headers: {
         'Content-Type': 'application/json'
@@ -37,7 +39,6 @@ api.interceptors.response.use(
 
         // 401 에러 시 로그인 페이지로 리다이렉트 등의 처리
         if (error.response?.status === 401) {
-            // 로그인 페이지로 리다이렉트 로직
             localStorage.removeItem('token');
             window.location.href = '/login';
         } else if (error.response?.status === 413) {
@@ -52,6 +53,7 @@ api.interceptors.response.use(
     }
 );
 
+// 이미지 업로드 함수 - 별도의 axios 인스턴스 사용
 export const uploadImage = async (imageFile) => {
     try {
         console.log('uploadImage 함수 시작:', {
@@ -66,12 +68,12 @@ export const uploadImage = async (imageFile) => {
 
         console.log('FormData 생성 완료, 서버로 전송 시작...');
 
-        // 올바른 엔드포인트로 API 요청 (백엔드와 일치)
+        // 이미지 업로드를 위한 별도 axios 요청 (인터셉터 없이)
         const response = await axios.post(`${API_BASE_URL}/post/upload-image`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
-            // 업로드 진행률 모니터링 (선택사항)
+            timeout: 30000, // 이미지 업로드는 더 긴 타임아웃
             onUploadProgress: (progressEvent) => {
                 const percentCompleted = Math.round(
                     (progressEvent.loaded * 100) / progressEvent.total
@@ -99,30 +101,39 @@ export const uploadImage = async (imageFile) => {
                 statusText: error.response.statusText,
                 data: error.response.data
             });
+
+            // 구체적인 에러 메시지 제공
+            if (error.response.status === 413) {
+                throw new Error('이미지 파일 크기가 너무 큽니다. 더 작은 파일을 선택해주세요.');
+            } else if (error.response.status === 415) {
+                throw new Error('지원하지 않는 이미지 형식입니다. JPG, PNG, GIF 파일만 업로드 가능합니다.');
+            } else if (error.response.status === 400) {
+                throw new Error(error.response.data?.message || '잘못된 이미지 파일입니다.');
+            } else if (error.response.status === 500) {
+                throw new Error('서버에서 이미지 처리 중 오류가 발생했습니다.');
+            }
         } else if (error.request) {
             console.error('네트워크 요청 오류:', error.request);
+            throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
         }
 
         throw error;
     }
 };
 
-// 수정된 savePost 함수도 백엔드 엔드포인트와 일치시키기
+// 게시물 저장 함수 - api 인스턴스 사용하도록 수정
 export const savePost = async (postData) => {
     try {
         console.log('savePost 함수 시작:', postData);
 
-        // 백엔드 컨트롤러의 엔드포인트와 일치
-        const response = await axios.post(`${API_BASE_URL}/post`, postData, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        // axios 대신 api 인스턴스 사용 (인터셉터 적용됨)
+        const response = await api.post('/post', postData);
 
         console.log('게시물 저장 응답 상태:', response.status);
-        console.log('게시물 저장 응답 데이터:', response.data);
+        console.log('게시물 저장 응답 데이터:', response.data || response);
 
-        return response.data;
+        // api 인터셉터가 response.data를 반환하므로 그대로 사용
+        return response;
 
     } catch (error) {
         console.error('savePost 함수 오류:', error);
@@ -133,6 +144,17 @@ export const savePost = async (postData) => {
                 statusText: error.response.statusText,
                 data: error.response.data
             });
+
+            // 구체적인 에러 메시지 제공
+            if (error.response.status === 400) {
+                throw new Error(error.response.data?.message || '게시물 데이터가 올바르지 않습니다.');
+            } else if (error.response.status === 401) {
+                throw new Error('로그인이 필요합니다.');
+            } else if (error.response.status === 500) {
+                throw new Error('서버에서 게시물 저장 중 오류가 발생했습니다.');
+            }
+        } else if (error.request) {
+            throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
         }
 
         throw error;
