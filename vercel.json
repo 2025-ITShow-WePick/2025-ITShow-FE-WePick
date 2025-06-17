@@ -1,24 +1,20 @@
 {
   "rewrites": [
     {
-      "source": "/post/upload-image",
-      "destination": "http://52.78.100.102:3000/post/upload-image"
+      "source": "/api/post",
+      "destination": "http://52.78.100.102:3000/post"
     },
     {
-      "source": "/map",
-      "destination": "http://52.78.100.102:3000/map"
+      "source": "/api/post/(.*)",
+      "destination": "http://52.78.100.102:3000/post/$1"
     },
     {
       "source": "/api/(.*)",
       "destination": "http://52.78.100.102:3000/api/$1"
     },
     {
-      "source": "/post",
-      "destination": "http://52.78.100.102:3000/post"
-    },
-    {
-      "source": "/post/(.*)",
-      "destination": "http://52.78.100.102:3000/post/$1"
+      "source": "/map",
+      "destination": "http://52.78.100.102:3000/map"
     },
     {
       "source": "/user",
