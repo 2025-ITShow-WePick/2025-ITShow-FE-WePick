@@ -35,6 +35,10 @@
     {
       "source": "/upload/(.*)",
       "destination": "http://52.78.100.102:3000/upload/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
