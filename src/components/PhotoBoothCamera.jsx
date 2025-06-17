@@ -6,7 +6,7 @@ import frame1 from '../assets/images/frame1.png';
 import frame2 from '../assets/images/frame2.png';
 import frame3 from '../assets/images/frame3.png';
 
-const API_BASE_URL = 'http://52.78.100.102:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function PhotoBoothCamera({ onComplete, onClose }) {
   const [currentStep, setCurrentStep] = useState('shooting'); // shooting, frameSelect
