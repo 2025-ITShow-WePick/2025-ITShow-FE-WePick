@@ -71,7 +71,7 @@ export const uploadImage = async (imageFile) => {
     // 이미지 업로드 URL 결정
     const uploadUrl = API_BASE_URL
       ? `${API_BASE_URL}/post/upload-image`
-      : "/post/upload-image";
+      : "/api/post/upload-image";
 
     // 이미지 업로드를 위한 별도 axios 요청 (인터셉터 없이)
     const response = await axios.post(uploadUrl, formData, {
@@ -139,7 +139,7 @@ export const savePost = async (postData) => {
     console.log("savePost 함수 시작:", postData);
 
     // axios 대신 api 인스턴스 사용 (인터셉터 적용됨)
-    const response = await api.post("/post", postData);
+    const response = await api.post("/api/post", postData);
 
     console.log("게시물 저장 응답 상태:", response.status);
     console.log("게시물 저장 응답 데이터:", response.data || response);
@@ -179,7 +179,7 @@ export const savePost = async (postData) => {
 // 전체 게시물 조회
 export const getAllPosts = async () => {
   try {
-    const response = await api.get("/post");
+    const response = await api.get("/api/post");
     return response;
   } catch (error) {
     console.error("게시물 조회 실패:", error);
@@ -190,7 +190,7 @@ export const getAllPosts = async () => {
 // 특정 게시물 조회
 export const getPostById = async (postId) => {
   try {
-    const response = await api.get(`/post/${postId}`);
+    const response = await api.get(`/api/post/${postId}`);
     return response;
   } catch (error) {
     console.error("게시물 조회 실패:", error);
@@ -202,7 +202,7 @@ export const getPostById = async (postId) => {
 export const getPostsByTag = async (tags) => {
   try {
     const tagParam = Array.isArray(tags) ? tags.join(",") : tags;
-    const response = await api.get("/post/tag", {
+    const response = await api.get("/api/post/tag", {
       params: { tags: tagParam },
     });
     return response;
@@ -215,7 +215,7 @@ export const getPostsByTag = async (tags) => {
 // 위치별 게시물 조회
 export const getPostsByLocation = async (location) => {
   try {
-    const response = await api.get("/post/location", {
+    const response = await api.get("/api/post/location", {
       params: { location },
     });
     return response;
@@ -228,7 +228,7 @@ export const getPostsByLocation = async (location) => {
 // 날짜 범위별 게시물 조회
 export const getPostsByDateRange = async (startDate, endDate) => {
   try {
-    const response = await api.get("/post/date-range", {
+    const response = await api.get("/api/post/date-range", {
       params: {
         startDate: startDate,
         endDate: endDate,
@@ -244,7 +244,7 @@ export const getPostsByDateRange = async (startDate, endDate) => {
 // 게시물 수정 함수
 export const updatePost = async (postId, postData) => {
   try {
-    const response = await api.put(`/post/${postId}`, postData);
+    const response = await api.put(`/api/post/${postId}`, postData);
     return response;
   } catch (error) {
     console.error("게시물 수정 실패:", error);
@@ -255,7 +255,7 @@ export const updatePost = async (postId, postData) => {
 // 게시물 삭제 함수
 export const deletePost = async (postId) => {
   try {
-    const response = await api.delete(`/post/${postId}`);
+    const response = await api.delete(`/api/post/${postId}`);
     return response;
   } catch (error) {
     console.error("게시물 삭제 실패:", error);
@@ -266,7 +266,7 @@ export const deletePost = async (postId) => {
 // 게시물 검색 함수
 export const searchPosts = async (searchParams) => {
   try {
-    const response = await api.get("/post/search", {
+    const response = await api.get("/api/post/search", {
       params: searchParams,
     });
     return response;
@@ -284,7 +284,7 @@ export const getPostsWithPagination = async (
   sortOrder = "desc"
 ) => {
   try {
-    const response = await api.get("/post/paginated", {
+    const response = await api.get("/api/post/paginated", {
       params: {
         page,
         limit,
@@ -304,7 +304,7 @@ export const userApi = {
   // 회원가입
   register: async (userData) => {
     try {
-      const response = await api.post("/user/register", userData);
+      const response = await api.post("/api/user/register", userData);
       return response;
     } catch (error) {
       console.error("회원가입 실패:", error);
@@ -315,7 +315,7 @@ export const userApi = {
   // 로그인
   login: async (credentials) => {
     try {
-      const response = await api.post("/user/login", credentials);
+      const response = await api.post("/api/user/login", credentials);
       if (response.token) {
         localStorage.setItem("token", response.token);
       }
@@ -334,7 +334,7 @@ export const userApi = {
   // 사용자 정보 조회
   getProfile: async () => {
     try {
-      const response = await api.get("/user/profile");
+      const response = await api.get("/api/user/profile");
       return response;
     } catch (error) {
       console.error("사용자 정보 조회 실패:", error);
@@ -345,7 +345,7 @@ export const userApi = {
   // 사용자 정보 수정
   updateProfile: async (userData) => {
     try {
-      const response = await api.put("/user/profile", userData);
+      const response = await api.put("/api/user/profile", userData);
       return response;
     } catch (error) {
       console.error("사용자 정보 수정 실패:", error);
@@ -356,7 +356,7 @@ export const userApi = {
   // 비밀번호 변경
   changePassword: async (passwordData) => {
     try {
-      const response = await api.put("/user/change-password", passwordData);
+      const response = await api.put("/api/user/change-password", passwordData);
       return response;
     } catch (error) {
       console.error("비밀번호 변경 실패:", error);
@@ -367,7 +367,7 @@ export const userApi = {
   // 회원 탈퇴
   deleteAccount: async () => {
     try {
-      const response = await api.delete("/user/account");
+      const response = await api.delete("/api/user/account");
       localStorage.removeItem("token");
       return response;
     } catch (error) {
@@ -382,7 +382,7 @@ export const fileApi = {
   // 파일 삭제
   deleteFile: async (fileUrl) => {
     try {
-      const response = await api.delete("/file/delete", {
+      const response = await api.delete("/api/file/delete", {
         data: { fileUrl },
       });
       return response;

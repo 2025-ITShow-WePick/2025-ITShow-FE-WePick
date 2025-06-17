@@ -58,7 +58,7 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
 
       const apiUrl =
         process.env.NODE_ENV === "production"
-          ? "/post/upload-image"
+          ? "api/post/upload-image"
           : "http://52.78.100.102:3000/post/upload-image";
       const response = await axios.post(apiUrl, formData, {
         headers: {
