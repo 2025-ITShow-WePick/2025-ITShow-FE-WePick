@@ -5,36 +5,20 @@
       "destination": "http://52.78.100.102:3000/post/upload-image"
     },
     {
-      "source": "/map",
-      "destination": "http://52.78.100.102:3000/map"
+      "source": "/api/posts",
+      "destination": "http://52.78.100.102:3000/post"
+    },
+    {
+      "source": "/api/posts/(.*)",
+      "destination": "http://52.78.100.102:3000/post/$1"
     },
     {
       "source": "/api/(.*)",
       "destination": "http://52.78.100.102:3000/api/$1"
     },
     {
-      "source": "/post",
-      "destination": "http://52.78.100.102:3000/post"
-    },
-    {
-      "source": "/post/(.*)",
-      "destination": "http://52.78.100.102:3000/post/$1"
-    },
-    {
-      "source": "/user",
-      "destination": "http://52.78.100.102:3000/user"
-    },
-    {
-      "source": "/user/(.*)",
+      "source": "/api/user/(.*)",
       "destination": "http://52.78.100.102:3000/user/$1"
-    },
-    {
-      "source": "/upload",
-      "destination": "http://52.78.100.102:3000/upload"
-    },
-    {
-      "source": "/upload/(.*)",
-      "destination": "http://52.78.100.102:3000/upload/$1"
     },
     {
       "source": "/(.*)",

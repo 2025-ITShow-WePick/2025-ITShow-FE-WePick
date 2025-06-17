@@ -177,9 +177,10 @@ export const savePost = async (postData) => {
 };
 
 // 전체 게시물 조회
+// getAllPosts 함수 수정
 export const getAllPosts = async () => {
   try {
-    const response = await api.get("/post");
+    const response = await api.get("/api/posts"); // 경로 변경
     return response;
   } catch (error) {
     console.error("게시물 조회 실패:", error);
