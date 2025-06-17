@@ -5,6 +5,10 @@
       "destination": "http://52.78.100.102:3000/post/upload-image"
     },
     {
+      "source": "/map",
+      "destination": "http://52.78.100.102:3000/map"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "http://52.78.100.102:3000/api/$1"
     },
