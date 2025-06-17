@@ -239,7 +239,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scaleX(-1);
+    transform: scaleX(1);
     /* 사진만 좌우반전 */
 }
 
@@ -550,6 +550,10 @@
     transform: translateX(-50%);
     display: flex;
     gap: 5px;
+}
+
+.mirrored {
+    transform: scaleX(-1);
 }
 
 .dot {
