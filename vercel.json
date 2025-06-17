@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/post/upload-image",
-      "destination": "http://52.78.100.102:3000/api/post/upload-image"
+      "source": "/post/upload-image",
+      "destination": "http://52.78.100.102:3000/post/upload-image"
     },
     {
       "source": "/api/(.*)",
