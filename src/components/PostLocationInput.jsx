@@ -8,8 +8,21 @@ const KAKAO_API_KEY = import.meta.env.VITE_KAKAO_API_KEY;
 const PostLocationInput = ({ value, onChange }) => {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  // 🔥 고정된 장소로 초기화
-  const [selectedPlace, setSelectedPlace] = useState({
+  const [selectedPlace, setSelectedPlace] = useState(null); // 초기값을 null로 변경
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [kakaoLoaded, setKakaoLoaded] = useState(false);
+  const [sdkError, setSdkError] = useState(false);
+  const [quotaExceeded, setQuotaExceeded] = useState(false); // API 쿼터 상태 추가
+
+  const mapRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const debounceTimerRef = useRef(null);
+
+  // 미림마이스터고 고정 데이터
+  const FALLBACK_PLACE = {
     id: "fixed_mirim",
     place_name: "미림마이스터고등학교",
     address_name: "서울특별시 관악구 호암로 546",
@@ -17,26 +30,7 @@ const PostLocationInput = ({ value, onChange }) => {
     category_name: "학교 > 고등학교",
     x: "126.9515135",
     y: "37.4776871",
-  });
-  const [showSearchModal, setShowSearchModal] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showMap, setShowMap] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [kakaoLoaded, setKakaoLoaded] = useState(false);
-  const [sdkError, setSdkError] = useState(false);
-  const [initialized, setInitialized] = useState(false); // 초기화 상태 추가
-
-  const mapRef = useRef(null);
-  const searchInputRef = useRef(null);
-  const debounceTimerRef = useRef(null);
-
-  // 🔥 컴포넌트 마운트 시 고정 장소를 부모에게 전달 (수정된 부분)
-  useEffect(() => {
-    if (!initialized) {
-      onChange("location", "미림마이스터고등학교");
-      setInitialized(true);
-    }
-  }, []); // 의존성 배열을 빈 배열로 변경
+  };
 
   // 카테고리별 아이콘 매핑
   const getCategoryIcon = (categoryName) => {
@@ -96,16 +90,14 @@ const PostLocationInput = ({ value, onChange }) => {
     );
   };
 
-  // 카카오 SDK 로드 (개선된 버전)
+  // 카카오 SDK 로드
   useEffect(() => {
-    // 이미 로드된 경우 체크
     if (window.kakao && window.kakao.maps) {
       console.log("카카오 SDK 이미 로드됨");
       setKakaoLoaded(true);
       return;
     }
 
-    // 기존 스크립트가 있는지 확인
     const existingScript = document.querySelector(
       'script[src*="dapi.kakao.com"]'
     );
@@ -114,16 +106,13 @@ const PostLocationInput = ({ value, onChange }) => {
     }
 
     console.log("카카오 SDK 로딩 시작...");
-    console.log("API Key:", KAKAO_API_KEY ? "설정됨" : "설정되지 않음");
 
-    // API 키 확인
     if (!KAKAO_API_KEY) {
       console.error("카카오 API 키가 설정되지 않았습니다.");
       setSdkError(true);
       return;
     }
 
-    // 스크립트 태그 생성
     const script = document.createElement("script");
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&libraries=services&autoload=false`;
     script.async = true;
@@ -131,7 +120,6 @@ const PostLocationInput = ({ value, onChange }) => {
     script.onload = () => {
       console.log("카카오 스크립트 로드 완료, SDK 초기화 중...");
 
-      // SDK 초기화
       if (window.kakao && window.kakao.maps) {
         window.kakao.maps.load(() => {
           console.log("카카오 SDK 초기화 완료");
@@ -150,34 +138,114 @@ const PostLocationInput = ({ value, onChange }) => {
     };
 
     document.head.appendChild(script);
-
-    return () => {
-      // 클린업 시 스크립트 제거하지 않음 (다른 컴포넌트에서 사용할 수 있음)
-    };
   }, []);
 
-  // 🔥 검색 기능 비활성화 - 고정 메시지 표시
-  const handleSearch = () => {
-    alert("현재 카카오 API 한도 초과로 임시 고정 장소를 사용 중입니다.");
+  // 검색 기능 (정상 버전)
+  const searchPlaces = async (searchQuery) => {
+    if (!kakaoLoaded || !window.kakao || !searchQuery.trim()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const places = new window.kakao.maps.services.Places();
+
+      places.keywordSearch(searchQuery, (data, status, pagination) => {
+        if (status === window.kakao.maps.services.Status.OK) {
+          console.log("검색 성공:", data);
+          setSearchResults(data);
+          setQuotaExceeded(false); // 성공 시 쿼터 정상으로 설정
+        } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+          console.log("검색 결과 없음");
+          setSearchResults([]);
+        } else if (status === window.kakao.maps.services.Status.ERROR) {
+          console.error("검색 에러 - API 쿼터 초과 가능성");
+          // 쿼터 초과로 판단하고 fallback 모드로 전환
+          setQuotaExceeded(true);
+          setSelectedPlace(FALLBACK_PLACE);
+          onChange("location", FALLBACK_PLACE.place_name);
+        }
+        setIsLoading(false);
+      });
+    } catch (error) {
+      console.error("검색 중 에러:", error);
+      // 에러 발생 시에도 쿼터 초과로 판단
+      setQuotaExceeded(true);
+      setSelectedPlace(FALLBACK_PLACE);
+      onChange("location", FALLBACK_PLACE.place_name);
+      setIsLoading(false);
+    }
   };
 
-  // 장소 선택 (현재는 사용하지 않음)
+  // 디바운스된 검색
+  const debouncedSearch = (searchQuery) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      searchPlaces(searchQuery);
+    }, 300);
+  };
+
+  // 검색어 변경 핸들러
+  const handleQueryChange = (e) => {
+    const newQuery = e.target.value;
+    setQuery(newQuery);
+
+    if (newQuery.trim()) {
+      debouncedSearch(newQuery);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  // 검색 실행
+  const handleSearch = () => {
+    if (quotaExceeded) {
+      alert("현재 카카오 API 한도 초과로 임시 고정 장소를 사용 중입니다.");
+      return;
+    }
+
+    if (query.trim()) {
+      searchPlaces(query);
+    }
+  };
+
+  // 장소 선택
   const handleSelectedPlace = async (place) => {
-    // 현재는 고정 장소만 사용
+    setSelectedPlace(place);
+    onChange("location", place.place_name);
+    setShowSearchModal(false);
+    setQuery("");
+    setSearchResults([]);
   };
 
   // 메인 입력 필드 클릭 처리
   const handleMainInputClick = () => {
+    if (quotaExceeded) {
+      alert("현재 카카오 API 한도 초과로 검색 기능이 비활성화되었습니다.");
+      return;
+    }
+
     if (selectedPlace) {
       setShowDropdown(!showDropdown);
     } else {
-      alert("현재 카카오 API 한도 초과로 검색 기능이 비활성화되었습니다.");
+      setShowSearchModal(true);
     }
   };
 
-  // 장소 삭제 비활성화
+  // 장소 삭제
   const handleRemovePlace = () => {
-    alert("현재는 고정 장소를 사용 중입니다.");
+    if (quotaExceeded) {
+      alert("현재는 고정 장소를 사용 중입니다.");
+      return;
+    }
+
+    setSelectedPlace(null);
+    onChange("location", "");
+    setShowDropdown(false);
   };
 
   // 지도 표시
@@ -200,7 +268,6 @@ const PostLocationInput = ({ value, onChange }) => {
         };
         const map = new window.kakao.maps.Map(container, options);
 
-        // 마커 추가
         const marker = new window.kakao.maps.Marker({
           map: map,
           position: new window.kakao.maps.LatLng(
@@ -221,7 +288,7 @@ const PostLocationInput = ({ value, onChange }) => {
     }
   }, [showMap, selectedPlace, kakaoLoaded]);
 
-  // Enter 처리
+  // Enter 키 처리
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleSearch();
@@ -230,20 +297,22 @@ const PostLocationInput = ({ value, onChange }) => {
 
   return (
     <InputWrapper label="위치(지점)">
-      {/* 🔥 임시 고정 장소 사용 안내 */}
-      <div
-        style={{
-          padding: "10px",
-          color: "#e67e22",
-          fontSize: "14px",
-          backgroundColor: "#fef5e7",
-          borderRadius: "8px",
-          marginBottom: "10px",
-        }}
-      >
-        ⚠️ 현재 카카오 API 한도 초과로 임시 고정 장소("미림마이스터고등학교")를
-        사용 중입니다.
-      </div>
+      {/* 쿼터 초과 시에만 경고 메시지 표시 */}
+      {quotaExceeded && (
+        <div
+          style={{
+            padding: "10px",
+            color: "#e67e22",
+            fontSize: "14px",
+            backgroundColor: "#fef5e7",
+            borderRadius: "8px",
+            marginBottom: "10px",
+          }}
+        >
+          ⚠️ 현재 카카오 API 한도 초과로 임시 고정
+          장소("미림마이스터고등학교")를 사용 중입니다.
+        </div>
+      )}
 
       {/* 메인 입력 필드 */}
       <div className={styles.locationInputContainer}>
@@ -253,7 +322,7 @@ const PostLocationInput = ({ value, onChange }) => {
           }`}
           onClick={handleMainInputClick}
         >
-          {selectedPlace && (
+          {selectedPlace ? (
             <>
               <div className={styles.locationIconAfter}>
                 <svg width="18" height="22" viewBox="0 0 18 27" fill="none">
@@ -280,6 +349,8 @@ const PostLocationInput = ({ value, onChange }) => {
                 </svg>
               </div>
             </>
+          ) : (
+            <div className={styles.placeholderText}>위치를 검색해주세요</div>
           )}
         </div>
 
@@ -313,9 +384,9 @@ const PostLocationInput = ({ value, onChange }) => {
                       e.stopPropagation();
                       handleRemovePlace();
                     }}
-                    disabled={true}
+                    disabled={quotaExceeded}
                   >
-                    위치 삭제 (비활성화)
+                    {quotaExceeded ? "위치 삭제 (비활성화)" : "위치 삭제"}
                   </button>
                 </div>
               </div>
@@ -323,6 +394,86 @@ const PostLocationInput = ({ value, onChange }) => {
           </div>
         )}
       </div>
+
+      {/* 검색 모달 */}
+      {showSearchModal && !quotaExceeded && (
+        <div
+          className={styles.searchModalOverlay}
+          onClick={() => setShowSearchModal(false)}
+        >
+          <div
+            className={styles.searchModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.searchHeader}>
+              <h3>위치 검색</h3>
+              <button
+                className={styles.closeBtn}
+                onClick={() => setShowSearchModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className={styles.searchInputContainer}>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={query}
+                onChange={handleQueryChange}
+                onKeyDown={handleKeyDown}
+                placeholder="검색할 장소명을 입력해주세요"
+                className={styles.searchInput}
+                autoFocus
+              />
+              <button
+                onClick={handleSearch}
+                className={styles.searchButton}
+                disabled={isLoading}
+              >
+                {isLoading ? "검색 중..." : "검색"}
+              </button>
+            </div>
+
+            {/* 검색 결과 */}
+            <div className={styles.searchResults}>
+              {isLoading && (
+                <div className={styles.loadingState}>검색 중...</div>
+              )}
+
+              {!isLoading && searchResults.length === 0 && query && (
+                <div className={styles.noResults}>검색 결과가 없습니다.</div>
+              )}
+
+              {!isLoading &&
+                searchResults.map((place, index) => (
+                  <div
+                    key={`${place.id}-${index}`}
+                    className={styles.searchResultItem}
+                    onClick={() => handleSelectedPlace(place)}
+                  >
+                    <div className={styles.placeImageContainer}>
+                      <PlaceImageComponent
+                        place={place}
+                        className={styles.placeThumbnail}
+                      />
+                    </div>
+                    <div className={styles.placeInfo}>
+                      <h4 className={styles.placeName}>{place.place_name}</h4>
+                      <p className={styles.placeAddress}>
+                        {place.road_address_name || place.address_name}
+                      </p>
+                      {place.category_name && (
+                        <p className={styles.placeCategory}>
+                          {place.category_name}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 지도 모달 */}
       {showMap && selectedPlace && (
