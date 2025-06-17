@@ -41,7 +41,7 @@ export default function SearchPhoto({ tag }) {
           const query = tagArray
             .map((t) => `tags=${encodeURIComponent(t)}`)
             .join("&");
-          url = `/post/tag?${query}`;
+          url = `/api/post/tag?${query}`;
         }
 
         const res = await fetch(url);
