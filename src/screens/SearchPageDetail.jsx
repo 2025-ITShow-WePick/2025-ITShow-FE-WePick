@@ -40,7 +40,7 @@ export default function SearchPageDetail() {
         setLoading(true);
         console.log("API 호출 시작...");
 
-        const response = await fetch("/post");
+        const response = await fetch("/api/post");
         console.log("API 응답 상태:", response.status);
 
         if (!response.ok) {

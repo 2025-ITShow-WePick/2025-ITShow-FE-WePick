@@ -35,7 +35,7 @@ export default function SearchPhoto({ tag }) {
       try {
         let url;
         if (!tag || (Array.isArray(tag) && tag.length === 0)) {
-          url = "/post"; // 기본: 전체 포스트 요청
+          url = "/api/post"; // 기본: 전체 포스트 요청
         } else {
           const tagArray = Array.isArray(tag) ? tag : [tag];
           const query = tagArray
