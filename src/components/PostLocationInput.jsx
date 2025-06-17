@@ -24,15 +24,19 @@ const PostLocationInput = ({ value, onChange }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [kakaoLoaded, setKakaoLoaded] = useState(false);
   const [sdkError, setSdkError] = useState(false);
+  const [initialized, setInitialized] = useState(false); // 초기화 상태 추가
 
   const mapRef = useRef(null);
   const searchInputRef = useRef(null);
   const debounceTimerRef = useRef(null);
 
-  // 🔥 컴포넌트 마운트 시 고정 장소를 부모에게 전달
+  // 🔥 컴포넌트 마운트 시 고정 장소를 부모에게 전달 (수정된 부분)
   useEffect(() => {
-    onChange("미림마이스터고등학교");
-  }, [onChange]);
+    if (!initialized) {
+      onChange("location", "미림마이스터고등학교");
+      setInitialized(true);
+    }
+  }, []); // 의존성 배열을 빈 배열로 변경
 
   // 카테고리별 아이콘 매핑
   const getCategoryIcon = (categoryName) => {

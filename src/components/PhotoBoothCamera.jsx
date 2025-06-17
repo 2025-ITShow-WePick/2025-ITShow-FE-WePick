@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
-import styles from './PhotoBoothCamera.module.css';
-import Logo from './Logo'
-import frame1 from '../assets/images/frame1.png';
-import frame2 from '../assets/images/frame2.png';
-import frame3 from '../assets/images/frame3.png';
+import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import styles from "./PhotoBoothCamera.module.css";
+import Logo from "./Logo";
+import frame1 from "../assets/images/frame1.png";
+import frame2 from "../assets/images/frame2.png";
+import frame3 from "../assets/images/frame3.png";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function PhotoBoothCamera({ onComplete, onClose }) {
-  const [currentStep, setCurrentStep] = useState('shooting'); // shooting, frameSelect
+  const [currentStep, setCurrentStep] = useState("shooting"); // shooting, frameSelect
   const [currentShot, setCurrentShot] = useState(1);
   const [countdown, setCountdown] = useState(null);
   const [capturedPhotos, setCapturedPhotos] = useState([]);
@@ -24,9 +24,9 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
 
   // 프레임 옵션들
   const frameOptions = [
-    { id: 1, name: '프레임 1', image: frame1 },
-    { id: 2, name: '프레임 2', image: frame2 },
-    { id: 3, name: '프레임 3', image: frame3 },
+    { id: 1, name: "프레임 1", image: frame1 },
+    { id: 2, name: "프레임 2", image: frame2 },
+    { id: 3, name: "프레임 3", image: frame3 },
   ];
 
   // 프레임 이미지들 미리 로드
@@ -54,18 +54,22 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
   const uploadPhoto = async (photoBlob, photoIndex) => {
     try {
       const formData = new FormData();
-      formData.append('image', photoBlob, `photo_${photoIndex}.jpg`);
+      formData.append("image", photoBlob, `photo_${photoIndex}.jpg`);
 
-      const response = await axios.post('/post/upload-image', formData, {
+      const apiUrl =
+        process.env.NODE_ENV === "production"
+          ? "/post/upload-image"
+          : "http://52.78.100.102:3000/post/upload-image";
+      const response = await axios.post(apiUrl, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       return response.data;
     } catch (error) {
       console.error(`사진 ${photoIndex} 업로드 실패:`, error);
-      console.log('전체 오류 정보:', error.response ?? error);
+      console.log("전체 오류 정보:", error.response ?? error);
       throw error;
     }
   };
@@ -74,22 +78,22 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: 640, height: 480 }
+        video: { facingMode: "user", width: 640, height: 480 },
       });
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
     } catch (err) {
-      console.error('카메라 접근 실패:', err);
-      alert('카메라에 접근할 수 없습니다.');
+      console.error("카메라 접근 실패:", err);
+      alert("카메라에 접근할 수 없습니다.");
     }
   };
 
   // 카메라 스트림 정지
   const stopCamera = () => {
     if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       setStream(null);
     }
   };
@@ -101,64 +105,67 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
     setIsProcessing(true);
     const canvas = canvasRef.current;
     const video = videoRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     // ctx.drawImage(video, 0, 0);
-    ctx.save();               // 상태 저장
+    ctx.save(); // 상태 저장
     ctx.translate(canvas.width, 0); // 캔버스를 오른쪽으로 이동
-    ctx.scale(-1, 1);         // 좌우반전
+    ctx.scale(-1, 1); // 좌우반전
     ctx.drawImage(video, 0, 0); // 비디오 프레임 그리기
-    ctx.restore();            // 상태 복원
-
+    ctx.restore(); // 상태 복원
 
     // 사진 데이터를 Blob으로 변환
-    canvas.toBlob(async (blob) => {
-      if (!blob) {
-        console.error('❌ Blob 생성 실패: blob이 null입니다.');
-        return;
-      }
+    canvas.toBlob(
+      async (blob) => {
+        if (!blob) {
+          console.error("❌ Blob 생성 실패: blob이 null입니다.");
+          return;
+        }
 
-      const photoData = canvas.toDataURL('image/jpeg');
+        const photoData = canvas.toDataURL("image/jpeg");
 
-      try {
-        // 개별 사진을 백엔드에 업로드 (선택사항)
-        await uploadPhoto(blob, currentShot);
+        try {
+          // 개별 사진을 백엔드에 업로드 (선택사항)
+          await uploadPhoto(blob, currentShot);
 
-        setCapturedPhotos(prev => {
-          const newPhotos = [...prev, photoData];
+          setCapturedPhotos((prev) => {
+            const newPhotos = [...prev, photoData];
 
-          if (newPhotos.length >= 4) {
-            setTimeout(() => {
-              stopCamera();
-              setCurrentStep('frameSelect');
-              setCountdown(null);
-              if (timerRef.current) {
-                clearInterval(timerRef.current);
-                timerRef.current = null;
-              }
-            }, 1500);
-          } else {
-            setCurrentShot(prev => prev + 1);
-            setTimeout(() => {
-              if (newPhotos.length < 4) {
-                startCountdown();
-              }
-            }, 1500);
-          }
-          return newPhotos;
-        });
-      } catch (error) {
-        console.error('사진 업로드 실패:', error);
-        // 업로드 실패해도 촬영은 계속 진행
-        setCapturedPhotos(prev => {
-          const newPhotos = [...prev, photoData];
-          // ... 나머지 로직 동일
-          return newPhotos;
-        });
-      }
-    }, 'image/jpeg', 0.9);
+            if (newPhotos.length >= 4) {
+              setTimeout(() => {
+                stopCamera();
+                setCurrentStep("frameSelect");
+                setCountdown(null);
+                if (timerRef.current) {
+                  clearInterval(timerRef.current);
+                  timerRef.current = null;
+                }
+              }, 1500);
+            } else {
+              setCurrentShot((prev) => prev + 1);
+              setTimeout(() => {
+                if (newPhotos.length < 4) {
+                  startCountdown();
+                }
+              }, 1500);
+            }
+            return newPhotos;
+          });
+        } catch (error) {
+          console.error("사진 업로드 실패:", error);
+          // 업로드 실패해도 촬영은 계속 진행
+          setCapturedPhotos((prev) => {
+            const newPhotos = [...prev, photoData];
+            // ... 나머지 로직 동일
+            return newPhotos;
+          });
+        }
+      },
+      "image/jpeg",
+      0.9
+    );
 
     setIsProcessing(false);
   };
@@ -169,14 +176,14 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
 
     setCountdown(5);
     timerRef.current = setInterval(() => {
-      setCountdown(prev => {
+      setCountdown((prev) => {
         if (prev === 1) {
           clearInterval(timerRef.current);
           setTimeout(() => {
             takePhoto();
             setCountdown(null);
           }, 1000);
-          return 'SHOT!';
+          return "SHOT!";
         }
         return prev - 1;
       });
@@ -187,17 +194,16 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
   const handleFrameSelect = (frame) => {
     setSelectedFrame(frame);
     if (!frame || !frame.image) {
-      console.error('프레임 객체 또는 image 속성이 없습니다:', frame);
+      console.error("프레임 객체 또는 image 속성이 없습니다:", frame);
       return;
     }
     const frameImg = new Image();
     frameImg.src = frame.image;
 
-    const stripCanvas = document.createElement('canvas');
-    const stripCtx = stripCanvas.getContext('2d');
+    const stripCanvas = document.createElement("canvas");
+    const stripCtx = stripCanvas.getContext("2d");
     stripCanvas.width = 350;
     stripCanvas.height = 1200;
-
 
     frameImg.onload = () => {
       stripCtx.drawImage(frameImg, 0, 0, 350, 1200);
@@ -206,7 +212,7 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
       capturedPhotos.forEach((photo, index) => {
         const img = new Image();
         img.onload = () => {
-          stripCtx.drawImage(img, 25, 25 + (index * 260), 300, 250);
+          stripCtx.drawImage(img, 25, 25 + index * 260, 300, 250);
           loadedCount++;
           if (loadedCount === 4) {
             stripCanvas.toBlob(async (blob) => {
@@ -217,9 +223,9 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
                   photos: capturedPhotos,
                 });
               } else {
-                console.error('❌ 4컷 스트립 Blob 생성 실패: null입니다.');
+                console.error("❌ 4컷 스트립 Blob 생성 실패: null입니다.");
               }
-            }, 'image/jpeg');
+            }, "image/jpeg");
           }
         };
         img.src = photo;
@@ -228,7 +234,7 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
   };
 
   useEffect(() => {
-    if (currentStep === 'shooting') {
+    if (currentStep === "shooting") {
       startCamera();
       setTimeout(() => {
         startCountdown();
@@ -248,18 +254,29 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
     <div className={styles.cameraOverlay}>
       <div className={styles.cameraContainer}>
         {/* 촬영 화면 */}
-        {currentStep === 'shooting' && (
+        {currentStep === "shooting" && (
           <div className={styles.shootingLayout}>
             <div className={styles.frameHeader}>
               <div className={styles.frameTitle}>
                 <Logo size="small" />
-                <button
-                  className={styles.closeBtnCamera}
-                  onClick={onClose}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="71" height="71" viewBox="0 0 71 71" fill="none">
-                    <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" strokeWidth="2" />
-                    <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" strokeWidth="2" />
+                <button className={styles.closeBtnCamera} onClick={onClose}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="71"
+                    height="71"
+                    viewBox="0 0 71 71"
+                    fill="none"
+                  >
+                    <path
+                      d="M52.6631 17.5215L17.5215 52.6631"
+                      stroke="black"
+                      strokeWidth="2"
+                    />
+                    <path
+                      d="M17.6201 17.5215L52.7617 52.663"
+                      stroke="black"
+                      strokeWidth="2"
+                    />
                   </svg>
                 </button>
               </div>
@@ -276,9 +293,7 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
                 />
                 {countdown && (
                   <div className={styles.countdownOverlay}>
-                    <div className={styles.countdownText}>
-                      {countdown}
-                    </div>
+                    <div className={styles.countdownText}>{countdown}</div>
                   </div>
                 )}
                 {!stream && (
@@ -301,11 +316,17 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
                 {Array.from({ length: 4 }, (_, i) => (
                   <div key={i} className={styles.photoSlot}>
                     {capturedPhotos[i] ? (
-                      <img className={styles.mirrored} src={capturedPhotos[i]} alt={`Photo ${i + 1}`} />
+                      <img
+                        className={styles.mirrored}
+                        src={capturedPhotos[i]}
+                        alt={`Photo ${i + 1}`}
+                      />
                     ) : (
                       <div className={styles.emptySlot}>
                         {i === currentShot - 1 && countdown ? (
-                          <div className={styles.slotCountdown}>{countdown}</div>
+                          <div className={styles.slotCountdown}>
+                            {countdown}
+                          </div>
                         ) : (
                           <div>{i + 1}</div>
                         )}
@@ -323,22 +344,35 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
         )}
 
         {/* 프레임 선택 화면 */}
-        {currentStep === 'frameSelect' && (
+        {currentStep === "frameSelect" && (
           <div className={styles.frameSelectScreen}>
             <div className={styles.frameHeader}>
               <div className={styles.frameTitle}>
                 <Logo size="small" />
-                <button
-                  className={styles.closeBtn}
-                  onClick={onClose}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="71" height="71" viewBox="0 0 71 71" fill="none">
-                    <path d="M52.6631 17.5215L17.5215 52.6631" stroke="black" strokeWidth="2" />
-                    <path d="M17.6201 17.5215L52.7617 52.663" stroke="black" strokeWidth="2" />
+                <button className={styles.closeBtn} onClick={onClose}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="71"
+                    height="71"
+                    viewBox="0 0 71 71"
+                    fill="none"
+                  >
+                    <path
+                      d="M52.6631 17.5215L17.5215 52.6631"
+                      stroke="black"
+                      strokeWidth="2"
+                    />
+                    <path
+                      d="M17.6201 17.5215L52.7617 52.663"
+                      stroke="black"
+                      strokeWidth="2"
+                    />
                   </svg>
                 </button>
               </div>
-              <p className={styles.frameSubtitle}>원하는 네컷 프레임을 선택해주세요</p>
+              <p className={styles.frameSubtitle}>
+                원하는 네컷 프레임을 선택해주세요
+              </p>
             </div>
 
             <div className={styles.frameSelection}>
@@ -353,14 +387,19 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
                   {frameOptions.slice(0, 3).map((frame) => (
                     <div
                       key={frame.id}
-                      className={`${styles.frameOption} ${frame.id === 2 ? styles.frame2slot : ''}`}
+                      className={`${styles.frameOption} ${
+                        frame.id === 2 ? styles.frame2slot : ""
+                      }`}
                       onClick={() => handleFrameSelect(frame)}
                     >
-                      <img src={frame.image} alt={frame.name} style={{ width: '150px', height: 'auto' }} />
+                      <img
+                        src={frame.image}
+                        alt={frame.name}
+                        style={{ width: "150px", height: "auto" }}
+                      />
                       {Array.from({ length: 3 }, (_, i) => (
                         <div key={i} className={styles.frameSlot}></div>
                       ))}
-
                     </div>
                   ))}
                 </div>
@@ -376,7 +415,7 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
 
         <canvas ref={canvasRef} className={styles.hidden} />
       </div>
-    </div >
+    </div>
   );
 }
 

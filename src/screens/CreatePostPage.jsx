@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -49,16 +49,16 @@ const CreatePostPage = () => {
     navigate("/search");
   };
 
-  // formData 상태를 업데이트
-  const handleInputChange = (field, value) => {
+  // formData 상태를 업데이트 (useCallback으로 메모이제이션)
+  const handleInputChange = useCallback((field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-  };
+  }, []);
 
-  // 위치 검색 함수 - Kakao JavaScript SDK 사용
-  const handleLocationSearch = async (searchTerm) => {
+  // 위치 검색 함수 - Kakao JavaScript SDK 사용 (useCallback 추가)
+  const handleLocationSearch = useCallback(async (searchTerm) => {
     if (!searchTerm.trim()) {
       setSearchResults([]);
       return;
@@ -97,10 +97,10 @@ const CreatePostPage = () => {
       setSearchResults([]);
       setIsSearching(false);
     }
-  };
+  }, []);
 
-  // Kakao 장소 검색 실행 함수
-  const performKakaoSearch = (searchTerm) => {
+  // Kakao 장소 검색 실행 함수 (useCallback 추가)
+  const performKakaoSearch = useCallback((searchTerm) => {
     const places = new window.kakao.maps.services.Places();
 
     places.keywordSearch(searchTerm, (result, status) => {
@@ -128,7 +128,7 @@ const CreatePostPage = () => {
         setSearchResults([]);
       }
     });
-  };
+  }, []);
 
   // 업로드 처리 함수
   const handleUpload = async () => {
@@ -273,16 +273,7 @@ const CreatePostPage = () => {
         <div className={styles.rightPostInputGroup}>
           <PostLocationInput
             value={formData.location}
-            onChange={(value) => {
-              handleInputChange("location", value);
-              handleLocationSearch(value);
-            }}
-            searchResults={searchResults} // 검색 결과 데이터 전달
-            onSelectLocation={(location) => {
-              handleInputChange("location", location.place_name); // 선택된 장소명 저장
-              setSearchResults([]); // 선택 후 검색 결과 초기화 (결과 숨김)
-            }}
-            isSearching={isSearching}
+            onChange={handleInputChange} // 수정: 직접 함수 전달
           />
           <PostDateInput
             value={formData.date}
