@@ -105,7 +105,13 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
+    // ctx.drawImage(video, 0, 0);
+    ctx.save();               // 상태 저장
+    ctx.translate(canvas.width, 0); // 캔버스를 오른쪽으로 이동
+    ctx.scale(-1, 1);         // 좌우반전
+    ctx.drawImage(video, 0, 0); // 비디오 프레임 그리기
+    ctx.restore();            // 상태 복원
+
 
     // 사진 데이터를 Blob으로 변환
     canvas.toBlob(async (blob) => {
@@ -295,7 +301,7 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
                 {Array.from({ length: 4 }, (_, i) => (
                   <div key={i} className={styles.photoSlot}>
                     {capturedPhotos[i] ? (
-                      <img src={capturedPhotos[i]} alt={`Photo ${i + 1}`} />
+                      <img className={styles.mirrored} src={capturedPhotos[i]} alt={`Photo ${i + 1}`} />
                     ) : (
                       <div className={styles.emptySlot}>
                         {i === currentShot - 1 && countdown ? (
