@@ -59,7 +59,7 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
       const apiUrl =
         process.env.NODE_ENV === "production"
           ? "api/post/upload-image"
-          : "http://52.78.100.102:3000/post/upload-image";
+          : "https://52.78.100.102:3000/post/upload-image";
       const response = await axios.post(apiUrl, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -387,9 +387,8 @@ export default function PhotoBoothCamera({ onComplete, onClose }) {
                   {frameOptions.slice(0, 3).map((frame) => (
                     <div
                       key={frame.id}
-                      className={`${styles.frameOption} ${
-                        frame.id === 2 ? styles.frame2slot : ""
-                      }`}
+                      className={`${styles.frameOption} ${frame.id === 2 ? styles.frame2slot : ""
+                        }`}
                       onClick={() => handleFrameSelect(frame)}
                     >
                       <img

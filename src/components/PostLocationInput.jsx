@@ -310,7 +310,7 @@ const PostLocationInput = ({ value, onChange }) => {
   return (
     <InputWrapper label="위치(지점)">
       {/* 쿼터 초과 시에만 경고 메시지 표시 */}
-      {quotaExceeded && (
+      {/* {quotaExceeded && (
         <div
           style={{
             padding: "10px",
@@ -324,7 +324,7 @@ const PostLocationInput = ({ value, onChange }) => {
           ⚠️ 현재 카카오 API 한도 초과로 임시 고정
           장소("미림마이스터고등학교")를 사용 중입니다.
         </div>
-      )}
+      )} */}
 
       {/* 메인 입력 필드 */}
       <div className={styles.locationInputContainer}>
